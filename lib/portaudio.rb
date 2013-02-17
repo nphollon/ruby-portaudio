@@ -1,3 +1,6 @@
 require 'c_bindings'
 require 'portaudio_func'
-require 'portaudio2'
+require 'host'
+require 'device'
+require 'stream'
+require 'sample_buffer'
