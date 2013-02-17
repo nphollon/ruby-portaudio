@@ -122,11 +122,11 @@ module PortAudio
              :sample_rate, :double
     end
     
-    attach_function :version, :Pa_GetVersion, [], :int
-    attach_function :version_text, :Pa_GetVersionText, [], :string
-    attach_function :error_text, :Pa_GetErrorText, [PA_ERROR], :string
-    attach_function :Pa_Initialize, [], PA_ERROR
-    attach_function :Pa_Terminate, [], PA_ERROR
+    attach_function :version,       :Pa_GetVersion, [], :int
+    attach_function :version_text,  :Pa_GetVersionText, [], :string
+    attach_function :error_text,    :Pa_GetErrorText, [PA_ERROR], :string
+    attach_function :initialize,    :Pa_Initialize, [], PA_ERROR
+    attach_function :terminate,     :Pa_Terminate, [], PA_ERROR
     attach_function :Pa_GetHostApiCount, [], PA_DEVICE_INDEX
     attach_function :Pa_GetDefaultHostApi, [], PA_DEVICE_INDEX
     attach_function :Pa_GetHostApiInfo, [:int], :pointer
