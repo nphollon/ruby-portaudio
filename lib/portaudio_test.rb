@@ -1,5 +1,6 @@
 require 'ffi'
 require 'portaudio'
+require 'c_bindings'
 
 if __FILE__ == $0
   PortAudio.init
