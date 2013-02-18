@@ -1,24 +1,5 @@
-= PortAudio
+This is a branch of Jeremy Voorhis's ruby-portaudio. The original README is located at README_original.
 
-Author:: Jeremy Voorhis
-Copyright:: Copyright (c) 2009 Jeremy Voorhis
-License:: BSD 3-clause (see LICENSE)
+WARNING: This code is undergoing a major refactoring. If a feature does not have specifications in spec/, you should not expect it to work.
 
-This package contains Ruby bindings to the PortAudio api. PortAudio is a cross-
-platform interface to your audio hardware.
-
-The ruby-portaudio package supports both PortAudio apis: blocking and
-non-blocking. The blocking API allows Ruby scripts to iteratively fill a
-sample buffer which is then written to the audio hardware (later versions will
-also support reading from a buffer). The non-blocking api allows Ruby programs
-to act as controllers for audio streams defined by an external callback
-function. Because the callback function may be run in an interrupt, it is not
-really feasible to implement one in Ruby. You can, however, write your callback
-function in a C extension, or you may build your own using LLVM or LibJIT as in
-http://github.com/jvoorhis/Motivik.
-
-See the bottom of lib/portaudio.rb for an example.
-
-== Requirements
-* PortAudio, version 1.9 or better
-* Fairly complete support for Ruby's foreign function interface
+Let me know if you want to help improve the code. If you are looking for a fully functional realtime audio module, for now you should check out the original branch at voorhis/ruby-portaudio.
