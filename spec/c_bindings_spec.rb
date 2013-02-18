@@ -44,6 +44,10 @@ describe "PortAudio::C" do
       subject.sample_size(subject::PA_SAMPLE_FORMAT_MAP[:int32]).should == 4
     end
 
+    it "returns error code for invalid sample sizes" do
+      subject.sample_size(-1).should == 4
+    end
+
     describe "Initialized PortAudio" do
       before do
         $stderr.reopen(File::NULL)

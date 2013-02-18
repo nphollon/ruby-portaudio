@@ -1,0 +1,30 @@
+-10000  PortAudio not initialized
+-9999  Unanticipated host error
+-9998  Invalid number of channels
+-9997  Invalid sample rate
+-9996  Invalid device
+-9995  Invalid flag
+-9994  Sample format not supported
+-9993  Illegal combination of I/O devices
+-9992  Insufficient memory
+-9991  Buffer too big
+-9990  Buffer too small
+-9989  No callback routine specified
+-9988  Invalid stream pointer
+-9987  Wait timed out
+-9986  Internal PortAudio error
+-9985  Device unavailable
+-9984  Incompatible host API specific stream info
+-9983  Stream is stopped
+-9982  Stream is not stopped
+-9981  Input overflowed
+-9980  Output underflowed
+-9979  Host API not found
+-9978  Invalid host API
+-9977  Can't read from a callback stream
+-9976  Can't write to a callback stream
+-9975  Can't read from an output only stream
+-9974  Can't write to an input only stream
+-9973  Incompatible stream host API
+-9972  Bad buffer pointer
+0  Success
