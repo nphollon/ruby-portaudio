@@ -1,31 +1,31 @@
 module PortAudio
-  def version_number
-    C.Pa_GetVersion()
+  def version
+    C.version
   end
-  module_function :version_number
+  module_function :version
   
   def version_text
-    C.Pa_GetVersionText()
+    C.version_text
   end
   module_function :version_text
   
   def error_text(pa_err)
-    C.Pa_GetErrorText(pa_err)
+    C.error_text pa_err
   end
   module_function :error_text
   
-  def init
-    C.Pa_Initialize()
+  def initialize
+    C.initialize
   end
-  module_function :init
+  module_function :initialize
   
   def terminate
-    C.Pa_Terminate()
+    C.terminate
   end
   module_function :terminate
   
   def sleep(msec)
-    C.Pa_Sleep(msec)
+    C.sleep msec
   end
   module_function :sleep
   
