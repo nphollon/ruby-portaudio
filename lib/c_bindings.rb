@@ -122,39 +122,47 @@ module PortAudio
              :sample_rate, :double
     end
     
-    attach_function :version,       :Pa_GetVersion, [], :int
-    attach_function :version_text,  :Pa_GetVersionText, [], :string
-    attach_function :error_text,    :Pa_GetErrorText, [PA_ERROR], :string
-    attach_function :initialize,    :Pa_Initialize, [], PA_ERROR
-    attach_function :terminate,     :Pa_Terminate, [], PA_ERROR
-    attach_function :Pa_GetHostApiCount, [], PA_DEVICE_INDEX
-    attach_function :Pa_GetDefaultHostApi, [], PA_DEVICE_INDEX
-    attach_function :Pa_GetHostApiInfo, [:int], :pointer
-    attach_function :Pa_HostApiTypeIdToHostApiIndex, [PA_HOST_API_TYPE_ID], PA_HOST_API_INDEX
-    attach_function :Pa_HostApiDeviceIndexToDeviceIndex, [PA_HOST_API_INDEX, :int], PA_DEVICE_INDEX
-    attach_function :Pa_GetLastHostErrorInfo, [], PaHostErrorInfo
-    attach_function :Pa_GetDeviceCount, [], PA_DEVICE_INDEX
-    attach_function :Pa_GetDefaultInputDevice, [], PA_DEVICE_INDEX
-    attach_function :Pa_GetDefaultOutputDevice, [], PA_DEVICE_INDEX
-    attach_function :Pa_GetDeviceInfo, [PA_DEVICE_INDEX], :pointer
-    attach_function :Pa_IsFormatSupported, [:pointer, :pointer, :double], PA_ERROR
-    attach_function :Pa_OpenStream, [:pointer, :pointer, :pointer, :double, :ulong, PA_STREAM_FLAGS, PA_STREAM_CALLBACK, :pointer], PA_ERROR
-    attach_function :Pa_OpenDefaultStream, [:pointer, :int, :int, PA_SAMPLE_FORMAT, :double, :ulong, PA_STREAM_CALLBACK, :pointer], PA_ERROR
-    attach_function :Pa_CloseStream, [:pointer], PA_ERROR
-    attach_function :Pa_SetStreamFinishedCallback, [:pointer, :pointer], PA_ERROR
-    attach_function :Pa_StartStream, [:pointer], PA_ERROR
-    attach_function :Pa_StopStream, [:pointer], PA_ERROR
-    attach_function :Pa_AbortStream, [:pointer], PA_ERROR
-    attach_function :Pa_IsStreamStopped, [:pointer], PA_ERROR
-    attach_function :Pa_IsStreamActive, [:pointer], PA_ERROR
-    attach_function :Pa_GetStreamInfo, [:pointer], :pointer
-    attach_function :Pa_GetStreamTime, [:pointer], PA_TIME
-    attach_function :Pa_GetStreamCpuLoad, [:pointer], :double
-    attach_function :Pa_ReadStream, [:pointer, :pointer, :ulong], PA_ERROR
-    attach_function :Pa_WriteStream, [:pointer, :pointer, :ulong], PA_ERROR
-    attach_function :Pa_GetStreamReadAvailable, [:pointer], :long
-    attach_function :Pa_GetStreamWriteAvailable, [:pointer], :long
-    attach_function :Pa_GetSampleSize, [:ulong], PA_ERROR
-    attach_function :Pa_Sleep, [:long], :void
+    attach_function :version,              :Pa_GetVersion, [], :int
+    attach_function :version_text,         :Pa_GetVersionText, [], :string
+    attach_function :error_text,           :Pa_GetErrorText, [PA_ERROR], :string
+    attach_function :initialize,           :Pa_Initialize, [], PA_ERROR
+    attach_function :terminate,            :Pa_Terminate, [], PA_ERROR
+    attach_function :host_api_count,       :Pa_GetHostApiCount, [], PA_DEVICE_INDEX
+    attach_function :default_host_api,     :Pa_GetDefaultHostApi, [], PA_DEVICE_INDEX
+    attach_function :host_api_info,        :Pa_GetHostApiInfo, [:int], :pointer
+    attach_function :host_api_type_id_to_host_api_index, 
+                                           :Pa_HostApiTypeIdToHostApiIndex, [PA_HOST_API_TYPE_ID], PA_HOST_API_INDEX
+    attach_function :host_api_device_index_to_device_index,
+                                           :Pa_HostApiDeviceIndexToDeviceIndex, [PA_HOST_API_INDEX, :int], PA_DEVICE_INDEX
+    attach_function :last_host_error_info, :Pa_GetLastHostErrorInfo, [], PaHostErrorInfo
+    attach_function :device_count,         :Pa_GetDeviceCount, [], PA_DEVICE_INDEX
+    attach_function :default_input_device, :Pa_GetDefaultInputDevice, [], PA_DEVICE_INDEX
+    attach_function :default_output_device,:Pa_GetDefaultOutputDevice, [], PA_DEVICE_INDEX
+    attach_function :device_info,          :Pa_GetDeviceInfo, [PA_DEVICE_INDEX], :pointer
+    attach_function :is_format_supported,  :Pa_IsFormatSupported, [:pointer, :pointer, :double], PA_ERROR
+    attach_function :open_stream,          :Pa_OpenStream, [:pointer, :pointer, :pointer, :double, :ulong, PA_STREAM_FLAGS, PA_STREAM_CALLBACK, :pointer], PA_ERROR
+    attach_function :open_default_stream,  :Pa_OpenDefaultStream, [:pointer, :int, :int, PA_SAMPLE_FORMAT, :double, :ulong, PA_STREAM_CALLBACK, :pointer], PA_ERROR
+    attach_function :close_stream,         :Pa_CloseStream, [:pointer], PA_ERROR
+    attach_function :set_stream_finished_callback,
+                                           :Pa_SetStreamFinishedCallback, [:pointer, :pointer], PA_ERROR
+    attach_function :start_stream,         :Pa_StartStream, [:pointer], PA_ERROR
+    attach_function :stop_stream,          :Pa_StopStream, [:pointer], PA_ERROR
+    attach_function :abort_stream,         :Pa_AbortStream, [:pointer], PA_ERROR
+    attach_function :is_stream_stopped,    :Pa_IsStreamStopped, [:pointer], PA_ERROR
+    attach_function :is_stream_active,     :Pa_IsStreamActive, [:pointer], PA_ERROR
+    attach_function :stream_info,          :Pa_GetStreamInfo, [:pointer], :pointer
+    attach_function :stream_time,          :Pa_GetStreamTime, [:pointer], PA_TIME
+    attach_function :stream_cpu_load,      :Pa_GetStreamCpuLoad, [:pointer], :double
+    attach_function :read_stream,          :Pa_ReadStream, [:pointer, :pointer, :ulong], PA_ERROR
+    attach_function :write_stream,         :Pa_WriteStream, [:pointer, :pointer, :ulong], PA_ERROR
+    attach_function :stream_read_available,:Pa_GetStreamReadAvailable, [:pointer], :long
+    attach_function :stream_write_available,
+                                           :Pa_GetStreamWriteAvailable, [:pointer], :long
+    attach_function :sample_size,          :Pa_GetSampleSize, [:ulong], PA_ERROR
+    attach_function :sleep,                :Pa_Sleep, [:long], :void
+
+    alias_method :format_supported?, :is_format_supported
+    alias_method :stream_stopped?, :is_stream_stopped
+    alias_method :stream_active?, :is_stream_active
   end
 end
