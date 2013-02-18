@@ -29,4 +29,14 @@ describe "PortAudio" do
 			expect { subject.invoke(:terminate) }.to raise_error(RuntimeError)
 		end
 	end
+
+	describe "sample size" do
+		it "returns sample size for valid arguments" do
+			subject.sample_size(:int32).should == 4
+		end
+
+		it "raises exception for invalid arguments" do
+			expect { subject.sample_size(-1) }.to raise_error(TypeError)
+		end
+	end
 end

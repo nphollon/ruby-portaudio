@@ -15,17 +15,14 @@ module PortAudio
   module_function :sleep
   
   def invoke(method, *args)
-    status = C.send(method, *args)
-    raise RuntimeError, C.error_text(status) unless status == C::PA_NO_ERROR
+    status = C.send method, *args
+    raise RuntimeError, C.error_text(status) if status < 0
+    status
   end
   module_function :invoke
   
   def sample_size(format)
-    status = C.Pa_GetSampleSize(C::PA_SAMPLE_FORMAT_MAP[format])
-    if status >= 0 then status
-    else
-      raise RuntimeError, PortAudio.error_text(status)
-    end
+    invoke :sample_size, C::PA_SAMPLE_FORMAT_MAP[format]
   end
   module_function :sample_size
 end
