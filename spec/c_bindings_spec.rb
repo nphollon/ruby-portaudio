@@ -20,7 +20,11 @@ describe "PortAudio::C" do
       end
     end
 
-    its(:terminate) { should == -10000 }
+    it "should return error code if terminated before initialized" do
+      subject.terminate
+      subject.terminate.should == -10000
+    end
+
     it { should respond_to(:host_api_info) }
     it { should respond_to(:host_api_type_id_to_host_api_index) }
     it { should respond_to(:host_api_device_index_to_device_index) }
@@ -43,7 +47,7 @@ describe "PortAudio::C" do
     describe "Initialized PortAudio" do
       before do
         $stderr.reopen(File::NULL)
-        @error = c_module.initialize
+        @error = c_module.init
       end
 
       after do

@@ -9,31 +9,14 @@ module PortAudio
   end
   module_function :version_text
   
-  def error_text(pa_err)
-    C.error_text pa_err
-  end
-  module_function :error_text
-  
-  def initialize
-    C.initialize
-  end
-  module_function :initialize
-  
-  def terminate
-    C.terminate
-  end
-  module_function :terminate
-  
   def sleep(msec)
     C.sleep msec
   end
   module_function :sleep
   
-  def invoke
-    status = yield
-    if status != C::PA_NO_ERROR
-      raise RuntimeError, PortAudio.error_text(status)
-    end
+  def invoke(method, *args)
+    status = C.send(method, *args)
+    raise RuntimeError, C.error_text(status) unless status == C::PA_NO_ERROR
   end
   module_function :invoke
   

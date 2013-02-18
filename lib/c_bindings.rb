@@ -125,7 +125,7 @@ module PortAudio
     attach_function :version,              :Pa_GetVersion, [], :int
     attach_function :version_text,         :Pa_GetVersionText, [], :string
     attach_function :error_text,           :Pa_GetErrorText, [PA_ERROR], :string
-    attach_function :initialize,           :Pa_Initialize, [], PA_ERROR
+    attach_function :init,           :Pa_Initialize, [], PA_ERROR
     attach_function :terminate,            :Pa_Terminate, [], PA_ERROR
     attach_function :host_api_count,       :Pa_GetHostApiCount, [], PA_DEVICE_INDEX
     attach_function :default_host_api,     :Pa_GetDefaultHostApi, [], PA_DEVICE_INDEX
