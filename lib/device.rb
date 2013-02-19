@@ -2,9 +2,7 @@ module PortAudio
   class Device    
     def initialize(index)
       @index = index
-      infop = C.device_info(@index)
-      raise RuntimeError, "Device not found" if infop.null?
-      @info = C::PaDeviceInfo.new(infop)
+      @info = C::PaDeviceInfo.new( PortAudio.invoke :device_info, @index )
     end
     
     attr_reader :index
