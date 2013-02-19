@@ -16,7 +16,7 @@ module PortAudio
     
     def initialize(index)
       @index = index
-      infop = C.Pa_GetDeviceInfo(@index)
+      infop = C.device_info(@index)
       raise RuntimeError, "Device not found" if infop.null?
       @info = C::PaDeviceInfo.new(infop)
     end

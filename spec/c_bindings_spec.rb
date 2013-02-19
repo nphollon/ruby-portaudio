@@ -45,7 +45,7 @@ describe "PortAudio::C" do
     end
 
     it "returns error code for invalid sample sizes" do
-      subject.sample_size(-1).should == 4
+      subject.sample_size(-1).should == -9994
     end
 
     describe "Initialized PortAudio" do
