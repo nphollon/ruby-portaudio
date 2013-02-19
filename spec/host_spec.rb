@@ -31,20 +31,24 @@ describe "Host" do
 
       its(:name) { should =~ /.+/ }
 
+      specify "number of devices should match C function call" do
+        subject.devices.length.should == PortAudio::C.device_count
+      end
+
       it "should have default output" do
         subject.default_output.class.should == PortAudio::Device
       end
 
-      specify "default output is included in devices" do
-        subject.devices.should include(subject.default_output)
+      specify "default output index matches C function call" do
+        subject.default_output.index.should == PortAudio::C.default_output_device
       end
 
       it "should have default input" do
         subject.default_input.class.should == PortAudio::Device
       end
 
-      specify "default input is included in devices" do
-        subject.devices.should include(subject.default_input)
+      specify "default input index matches C function call" do
+        subject.default_input.index.should == PortAudio::C.default_input_device
       end
     end
   end

@@ -1,19 +1,5 @@
 module PortAudio
-  class Device
-    def self.count
-      C.Pa_GetDeviceCount()
-    end
-    
-    def self.default_input
-      index = C.Pa_GetDefaultInputDevice()
-      new(index) unless C::PA_NO_DEVICE == index
-    end
-    
-    def self.default_output
-      index = C.Pa_GetDefaultOutputDevice()
-      new(index) unless C::PA_NO_DEVICE == index
-    end
-    
+  class Device    
     def initialize(index)
       @index = index
       infop = C.device_info(@index)

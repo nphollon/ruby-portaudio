@@ -28,13 +28,11 @@ module PortAudio
     end
 
     def default_input
-      index = @info[:default_input_device]
-      @devices[index] unless C::PA_NO_DEVICE == index
+      @devices[@info[:default_input_device]]
     end    
 
     def default_output
-      index = @info[:default_output_device]
-      @devices[index] unless C::PA_NO_DEVICE == index
+      @devices[@info[:default_output_device]]
     end
   end
 end
