@@ -39,4 +39,20 @@ module PortAudio
     end
   end
   module_function :check_for_null_pointer
+
+  def device(index)
+    info = C::PaDeviceInfo.new( PortAudio.invoke :device_info, index )
+    device = {}
+    device[:index] = index
+    device[:name] = info[:name]
+    device[:max_output_channels] = info[:max_output_channels]
+    device[:max_input_channels] = info[:max_input_channels]
+    device[:default_low_input_latency] = info[:default_low_input_latency]
+    device[:default_low_output_latency] = info[:default_low_output_latency]
+    device[:default_high_input_latency] = info[:default_high_output_latency]
+    device[:default_high_output_latency] = info[:default_high_output_latency]
+    device[:default_sample_rate] = info[:default_sample_rate]
+    device
+  end
+  module_function :device
 end

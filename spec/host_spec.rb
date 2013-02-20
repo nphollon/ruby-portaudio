@@ -35,20 +35,12 @@ describe "Host" do
         subject.devices.length.should == PortAudio::C.device_count
       end
 
-      it "should have default output" do
-        subject.default_output.class.should == PortAudio::Device
-      end
-
       specify "default output index matches C function call" do
-        subject.default_output.index.should == PortAudio::C.default_output_device
-      end
-
-      it "should have default input" do
-        subject.default_input.class.should == PortAudio::Device
+        subject.default_output[:index].should == PortAudio::C.default_output_device
       end
 
       specify "default input index matches C function call" do
-        subject.default_input.index.should == PortAudio::C.default_input_device
+        subject.default_input[:index].should == PortAudio::C.default_input_device
       end
     end
   end

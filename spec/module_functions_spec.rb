@@ -39,4 +39,32 @@ describe "PortAudio" do
 			expect { subject.sample_size(-1) }.to raise_error(TypeError)
 		end
 	end
+	
+	describe "Device" do
+	  before do
+	    $stderr.reopen File::NULL
+	    PortAudio.invoke(:init)
+	    $stderr.reopen STDERR
+	  end
+
+	  subject { PortAudio.device(0) }
+
+	  after do
+	    PortAudio.invoke(:terminate)
+	  end
+
+	  it "should raise exception when initialized with invalid index" do
+	    expect { PortAudio.device(-1) }.to raise_error
+	  end
+
+	  it { should have_key(:name) }
+	  it { should have_key(:max_input_channels) }
+	  it { should have_key(:max_output_channels) }
+	  it { should have_key(:default_sample_rate) }
+	  it { should have_key(:default_low_input_latency) }
+	  it { should have_key(:default_low_output_latency) }
+	  it { should have_key(:default_high_input_latency) }
+	  it { should have_key(:default_high_output_latency) }
+
+	end
 end

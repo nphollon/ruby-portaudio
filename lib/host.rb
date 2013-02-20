@@ -19,7 +19,7 @@ module PortAudio
       @info = C::PaHostApiInfo.new( PortAudio.invoke(:host_api_info, index) )
       @devices = []
       (0...@info[:device_count]).each do |i|
-        @devices << Device.new( C.host_api_device_index_to_device_index(index, i) )
+        @devices << PortAudio.device( C.host_api_device_index_to_device_index(index, i) )
       end
     end
 
