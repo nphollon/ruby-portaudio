@@ -49,4 +49,30 @@ module PortAudio
     device[:default_sample_rate] = info[:default_sample_rate]
     device
   end
+
+  def host_count
+    PortAudio.invoke :host_api_count
+  end
+
+  def default_host
+    host C.default_host_api
+  end
+
+  def host(index)
+    info = C::PaHostApiInfo.new( PortAudio.invoke(:host_api_info, index) )
+    devices = []
+    (0...info[:device_count]).each do |i|
+      devices << PortAudio.device( C.host_api_device_index_to_device_index(index, i) )
+    end
+
+    {name: info[:name], devices: devices}
+  end
+
+  def default_output_device
+    device PortAudio::C.default_output_device
+  end
+
+  def default_input_device
+    device PortAudio::C.default_input_device
+  end
 end

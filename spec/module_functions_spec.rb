@@ -67,4 +67,46 @@ describe "PortAudio" do
 	  it { should have_key(:default_high_output_latency) }
 
 	end
+
+	describe "Host" do
+
+	  describe "without initialized environment" do
+	    specify { expect { PortAudio.host_count }.to raise_error(RuntimeError) }
+	    specify { expect { PortAudio.default_host }.to raise_error(RuntimeError) }
+	  end
+
+	  describe "in initialized environment" do
+	    before do
+	      $stderr.reopen File::NULL
+	      PortAudio.invoke(:init)
+	      $stderr.reopen STDERR
+	    end
+
+	    after do
+	      PortAudio.invoke(:terminate)
+	    end
+
+	    specify { PortAudio.host_count.should be >= 0 }
+
+	    describe "default API" do
+	      subject { PortAudio.default_host }
+
+	      it "Should have a name" do
+	        subject[:name].should =~ /.+/
+	      end
+
+	      specify "number of devices should match C function call" do
+	        subject[:devices].length.should == PortAudio::C.device_count
+	      end
+
+	      specify "default output index matches C function call" do
+	        PortAudio.default_output_device[:index].should == PortAudio::C.default_output_device
+	      end
+
+	      specify "default input index matches C function call" do
+	        PortAudio.default_input_device[:index].should == PortAudio::C.default_input_device
+	      end
+	    end
+	  end
+	end
 end
