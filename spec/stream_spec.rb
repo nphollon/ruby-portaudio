@@ -11,31 +11,9 @@ describe "Stream" do
     PortAudio.invoke(:terminate)
   end
 
-  describe "check format support" do
-    # TODO: Move format support from stream to device
-    specify "supported format" do
-      options = { device: 10, channels: 2, sample_format: :int8 }
-      PortAudio::Stream.format_supported?({input: options, sample_rate: 44100}).should be_true
-    end
-
-    specify "unsupported format" do
-      options = { device: 10, channels: 130, sample_format: :int8 }
-      PortAudio::Stream.format_supported?({output: options, sample_rate: 44100}).should be_false
-    end
-  end
-
   describe "while open" do
-    before do
-      options = {
-        output: { device: 10, channels: 2, sample_format: :int8 },
-        sample_rate: 44100
-      }
-      @stream = PortAudio::Stream.open(options)
-    end
-
-    after do
-      @stream.close
-    end
+    before { @stream = PortAudio::default_output_device.open_stream }
+    after { @stream.close }
 
     subject { @stream }
 

@@ -1,33 +1,5 @@
 module PortAudio
   class Stream
-
-    class << self
-      def format_supported?(options)
-        in_params = C::PaStreamParameters.from_options(options[:input]) if options[:input]
-        out_params = C::PaStreamParameters.from_options(options[:output]) if options[:output]
-        C.is_format_supported(in_params, out_params, options[:sample_rate]) == C::PA_FORMAT_IS_SUPPORTED
-      end
-      
-      def open(options)
-        in_params = C::PaStreamParameters.from_options(options[:input]) if options[:input]
-        out_params = C::PaStreamParameters.from_options(options[:output]) if options[:output]
-        
-        sample_rate = options[:sample_rate]
-        frames    = options[:frames]    || C::PA_FRAMES_PER_BUFFER_UNSPECIFIED
-        flags     = options[:flags]     || C::PA_NO_FLAG
-        callbackp = options[:callback]  || FFI::Pointer.new(0) # default: blocking mode
-        user_data = options[:user_data] || FFI::Pointer.new(0)
-
-        FFI::MemoryPointer.new(:pointer) do |streamp|
-          PortAudio.invoke(:open_stream, streamp, in_params, out_params, sample_rate, frames,
-            flags, callbackp, user_data)
-          return new(streamp.read_pointer)
-        end
-      end
-      
-      private :new
-    end
-    
     def initialize(pointer)
       @stream = pointer
       @info = C::PaStreamInfo.new(PortAudio.invoke :stream_info, @stream)

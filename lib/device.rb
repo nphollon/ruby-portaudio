@@ -32,5 +32,23 @@ module PortAudio
         C.is_format_supported(nil, params, sample_rate) == C::PA_FORMAT_IS_SUPPORTED
       end
     end
+
+    def open_stream(options={})
+      params = C::PaStreamParameters.new
+      params[:device] = @index
+      params[:channel_count] = options[:channels] || 1
+      params[:sample_format] = C::PA_SAMPLE_FORMAT_MAP[ options[:sample_format] || :uint8 ]
+      sample_rate = options[:sample_rate] || @default_sample_rate
+      frames    = options[:frames]    || C::PA_FRAMES_PER_BUFFER_UNSPECIFIED
+      flags     = options[:flags]     || C::PA_NO_FLAG
+      callbackp = options[:callback]  || FFI::Pointer.new(0) # default: blocking mode
+      user_data = options[:user_data] || FFI::Pointer.new(0)
+
+      FFI::MemoryPointer.new(:pointer) do |streamp|
+        PortAudio.invoke(:open_stream, streamp, nil, params, sample_rate, frames,
+          flags, callbackp, user_data)
+        return Stream.new(streamp.read_pointer)
+      end
+    end
   end
 end
