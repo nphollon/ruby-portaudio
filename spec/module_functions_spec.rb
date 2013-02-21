@@ -39,34 +39,6 @@ describe "PortAudio" do
 			expect { subject.sample_size(-1) }.to raise_error(TypeError)
 		end
 	end
-	
-	describe "Device" do
-	  before do
-	    $stderr.reopen File::NULL
-	    PortAudio.invoke(:init)
-	    $stderr.reopen STDERR
-	  end
-
-	  subject { PortAudio.device(0) }
-
-	  after do
-	    PortAudio.invoke(:terminate)
-	  end
-
-	  it "should raise exception when initialized with invalid index" do
-	    expect { PortAudio.device(-1) }.to raise_error
-	  end
-
-	  it { should have_key(:name) }
-	  it { should have_key(:max_input_channels) }
-	  it { should have_key(:max_output_channels) }
-	  it { should have_key(:default_sample_rate) }
-	  it { should have_key(:default_low_input_latency) }
-	  it { should have_key(:default_low_output_latency) }
-	  it { should have_key(:default_high_input_latency) }
-	  it { should have_key(:default_high_output_latency) }
-
-	end
 
 	describe "Host" do
 
@@ -100,11 +72,11 @@ describe "PortAudio" do
 	      end
 
 	      specify "default output index matches C function call" do
-	        PortAudio.default_output_device[:index].should == PortAudio::C.default_output_device
+	        PortAudio.default_output_device.index.should == PortAudio::C.default_output_device
 	      end
 
 	      specify "default input index matches C function call" do
-	        PortAudio.default_input_device[:index].should == PortAudio::C.default_input_device
+	        PortAudio.default_input_device.index.should == PortAudio::C.default_input_device
 	      end
 	    end
 	  end

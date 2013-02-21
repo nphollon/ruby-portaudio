@@ -21,33 +21,18 @@ module PortAudio
     info = C::PaHostApiInfo.new( PortAudio.invoke(:host_api_info, index) )
     devices = []
     (0...info[:device_count]).each do |i|
-      devices << PortAudio.device( C.host_api_device_index_to_device_index(index, i) )
+      devices << Device.new( C.host_api_device_index_to_device_index(index, i) )
     end
 
     {name: info[:name], devices: devices}
   end
 
   def default_output_device
-    device PortAudio::C.default_output_device
+    Device.new PortAudio::C.default_output_device
   end
 
   def default_input_device
-    device PortAudio::C.default_input_device
-  end
-
-  def device(index)
-    info = C::PaDeviceInfo.new( PortAudio.invoke :device_info, index )
-    {
-      index: index,
-      name: info[:name],
-      max_output_channels: info[:max_output_channels],
-      max_input_channels: info[:max_input_channels],
-      default_sample_rate: info[:default_sample_rate],
-      default_low_input_latency: info[:default_low_input_latency],
-      default_low_output_latency: info[:default_low_output_latency],
-      default_high_input_latency: info[:default_high_input_latency],
-      default_high_output_latency: info[:default_high_output_latency]
-    }
+    Device.new PortAudio::C.default_input_device
   end
 
   def invoke(method, *args)
