@@ -1,21 +1,19 @@
 module PortAudio
   class Stream
     def self.format_supported?(options)
-      if options[:input]
-        in_params = C::PaStreamParameters.from_options(options[:input])
+      in_params = if options[:input]
+        C::PaStreamParameters.from_options(options[:input])  
+      else
+        FFI::Pointer::NULL
       end
-      
-      if options[:output]
-        out_params = C::PaStreamParameters.from_options(options[:output])
+
+      out_params = if options[:output]
+        C::PaStreamParameters.from_options(options[:output])
+      else
+        FFI::Pointer::NULL
       end
-      
-      sample_rate = options[:sample_rate]
-      err = C.Pa_IsFormatSupported(in_params, out_params, sample_rate)
-      
-      case err
-        when C::PA_FORMAT_IS_SUPPORTED then true
-        else false
-      end
+
+      C.is_format_supported(in_params, out_params, options[:sample_rate]) == C::PA_FORMAT_IS_SUPPORTED
     end
     
     def self.open(options)

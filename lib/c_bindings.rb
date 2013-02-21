@@ -125,7 +125,7 @@ module PortAudio
     attach_function :version,              :Pa_GetVersion, [], :int
     attach_function :version_text,         :Pa_GetVersionText, [], :string
     attach_function :error_text,           :Pa_GetErrorText, [PA_ERROR], :string
-    attach_function :init,           :Pa_Initialize, [], PA_ERROR
+    attach_function :init,                 :Pa_Initialize, [], PA_ERROR
     attach_function :terminate,            :Pa_Terminate, [], PA_ERROR
     attach_function :host_api_count,       :Pa_GetHostApiCount, [], PA_DEVICE_INDEX
     attach_function :default_host_api,     :Pa_GetDefaultHostApi, [], PA_DEVICE_INDEX
@@ -160,9 +160,5 @@ module PortAudio
                                            :Pa_GetStreamWriteAvailable, [:pointer], :long
     attach_function :sample_size,          :Pa_GetSampleSize, [:ulong], PA_ERROR
     attach_function :sleep,                :Pa_Sleep, [:long], :void
-
-    alias_method :format_supported?, :is_format_supported
-    alias_method :stream_stopped?, :is_stream_stopped
-    alias_method :stream_active?, :is_stream_active
   end
 end
