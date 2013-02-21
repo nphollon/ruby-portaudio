@@ -1,100 +1,70 @@
 module PortAudio
   class Stream
-    def self.format_supported?(options)
-      in_params = if options[:input]
-        C::PaStreamParameters.from_options(options[:input])  
-      else
-        FFI::Pointer::NULL
-      end
 
-      out_params = if options[:output]
-        C::PaStreamParameters.from_options(options[:output])
-      else
-        FFI::Pointer::NULL
-      end
-
-      C.is_format_supported(in_params, out_params, options[:sample_rate]) == C::PA_FORMAT_IS_SUPPORTED
-    end
-    
-    def self.open(options)
-      if options[:input]
-        in_params = C::PaStreamParameters.from_options(options[:input])
-      end
-      
-      if options[:output]
-        out_params = C::PaStreamParameters.from_options(options[:output])
-      end
-      
-      sample_rate = options[:sample_rate]
-      frames    = options[:frames]    || C::PA_FRAMES_PER_BUFFER_UNSPECIFIED
-      flags     = options[:flags]     || C::PA_NO_FLAG
-      callbackp = options[:callback]  || FFI::Pointer.new(0) # default: blocking mode
-      user_data = options[:user_data] || FFI::Pointer.new(0)
-      FFI::MemoryPointer.new(:pointer) do |streamp|
-        PortAudio.invoke {
-          C.Pa_OpenStream(streamp,
-            in_params, out_params,
-            sample_rate, frames, flags,
-            callbackp, user_data)
-        }
-        
-        return new(streamp.read_pointer)
-      end
-    end
-    
     class << self
+      def format_supported?(options)
+        in_params = C::PaStreamParameters.from_options(options[:input]) if options[:input]
+        out_params = C::PaStreamParameters.from_options(options[:output]) if options[:output]
+        C.is_format_supported(in_params, out_params, options[:sample_rate]) == C::PA_FORMAT_IS_SUPPORTED
+      end
+      
+      def open(options)
+        in_params = C::PaStreamParameters.from_options(options[:input]) if options[:input]
+        out_params = C::PaStreamParameters.from_options(options[:output]) if options[:output]
+        
+        sample_rate = options[:sample_rate]
+        frames    = options[:frames]    || C::PA_FRAMES_PER_BUFFER_UNSPECIFIED
+        flags     = options[:flags]     || C::PA_NO_FLAG
+        callbackp = options[:callback]  || FFI::Pointer.new(0) # default: blocking mode
+        user_data = options[:user_data] || FFI::Pointer.new(0)
+
+        FFI::MemoryPointer.new(:pointer) do |streamp|
+          PortAudio.invoke :open_stream, streamp, in_params, out_params, sample_rate, frames,
+            flags, callbackp, user_data          
+          return new(streamp.read_pointer)
+        end
+      end
+      
       private :new
     end
     
     def initialize(pointer)
       @stream = pointer
-      infop = C.Pa_GetStreamInfo(@stream)
+      infop = C.stream_info(@stream)
       raise RuntimeError, "Invalid stream" if infop.null?
       @info = C::PaStreamInfo.new(infop)
     end
     
     def close
-      PortAudio.invoke { C.Pa_CloseStream(@stream) }
+      PortAudio.invoke :close_stream, @stream
     end
     
     def start
-      PortAudio.invoke { C.Pa_StartStream(@stream) }
+      PortAudio.invoke :start_stream, @stream
     end
     
     def stop
-      PortAudio.invoke { C.Pa_StopStream(@stream) }
+      PortAudio.invoke :stop_stream, @stream
     end
     
     def abort
-      PortAudio.invoke { C.Pa_AbortStream(@stream) }
+      PortAudio.invoke :abort_stream, @stream
     end
     
     def stopped?
-      status = C.Pa_IsStreamStopped(@stream)
-      case status
-        when 1 then true
-        when 0 then false
-        else
-          raise RuntimeError, PortAudio.error_text(status)
-      end
+      1 == PortAudio.invoke(:is_stream_stopped, @stream)
     end
     
     def active?
-      status = C.Pa_IsStreamActive(@stream)
-      case status
-        when 1 then true
-        when 0 then false
-        else
-          raise RuntimeError, PortAudio.error_text(status)
-      end
+      1 == PortAudio.invoke(:is_stream_active, @stream)
     end
     
     def time
-      C.Pa_GetStreamTime(@stream)
+      C.stream_time(@stream)
     end
     
     def cpu_load
-      C.Pa_GetStreamCpuLoad(@stream)
+      C.stream_cpu_load(@stream)
     end
     
     def read
