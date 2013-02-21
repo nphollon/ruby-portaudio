@@ -19,8 +19,8 @@ module PortAudio
         user_data = options[:user_data] || FFI::Pointer.new(0)
 
         FFI::MemoryPointer.new(:pointer) do |streamp|
-          PortAudio.invoke :open_stream, streamp, in_params, out_params, sample_rate, frames,
-            flags, callbackp, user_data          
+          PortAudio.invoke(:open_stream, streamp, in_params, out_params, sample_rate, frames,
+            flags, callbackp, user_data)
           return new(streamp.read_pointer)
         end
       end
@@ -30,9 +30,7 @@ module PortAudio
     
     def initialize(pointer)
       @stream = pointer
-      infop = C.stream_info(@stream)
-      raise RuntimeError, "Invalid stream" if infop.null?
-      @info = C::PaStreamInfo.new(infop)
+      @info = C::PaStreamInfo.new(PortAudio.invoke :stream_info, @stream)
     end
     
     def close

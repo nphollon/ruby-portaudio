@@ -4,7 +4,9 @@ module PortAudio
     attr_reader :channels, :format, :frames, :size
     
     def initialize(options = {})
-      @channels, @format, @frames = options.values_at(:channels, :format, :frames)
+      @channels = options[:channels] || 1
+      @format ||= options[:format] || :float32
+      @frames ||= options[:frames] || 1024
       @sample_size = PortAudio.sample_size(@format)
       @frame_size = @channels * @sample_size
       @size = @sample_size * @channels * @frames
