@@ -1,15 +1,10 @@
 require 'spec_helper'
 
 describe "Device" do
-  before do
-    $stderr.reopen(File::NULL)
-    PortAudio.invoke(:init)
-    $stderr.reopen(STDERR)
-  end
-
+  before { PortAudio.init }
+  after { PortAudio.terminate }
+  
   subject { PortAudio.default_output_device }
-
-  after { PortAudio.invoke(:terminate) }
 
   it "should raise exception when initialized with invalid index" do
     expect { PortAudio::Device.new(-1) }.to raise_error

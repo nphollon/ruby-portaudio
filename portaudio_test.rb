@@ -1,8 +1,7 @@
 require 'ffi'
 require 'portaudio'
-require 'c_bindings'
 
-if __FILE__ == $0
+begin
   PortAudio.init
   
   block_size = 1024
@@ -10,14 +9,13 @@ if __FILE__ == $0
   step = 1.0/sr
   time = 0.0
   
-  stream = PortAudio::Stream.open(
-             :sample_rate => sr,
-             :frames => block_size,
-             :output => {
-               :device => PortAudio::Device.default_output,
-               :channels => 1,
-               :sample_format => :float32
-              })
+  device = PortAudio.default_output_device
+  stream = device.open_stream(
+            channels: 1,
+            sample_format: :float32,
+            sample_rate: sr,
+            frames: block_size
+          )
   
   buffer = PortAudio::SampleBuffer.new(
              :format   => :float32,
@@ -30,14 +28,18 @@ if __FILE__ == $0
   
   stream.start
   
-  loop do
+  while playing
     stream << buffer.fill { |frame, channel|
       time += step
       Math.cos(time * 2 * Math::PI * 440.0) * Math.cos(time * 2 * Math::PI)
     }
-    
-    break unless playing
   end
   
   stream.stop
+  stream.close
+  PortAudio.terminate
+rescue Exception => err
+  puts err.class
+  puts err.message
+  puts err.backtrace
 end

@@ -36,10 +36,6 @@ describe "PortAudio::C" do
     it { should respond_to(:is_format_supported) }
     it { should respond_to(:sleep) }
 
-    describe "Streaming" do
-      # Add more tests once I figure out how the Stream object works
-    end
-
     it "returns sample size" do
       subject.sample_size(subject::PA_SAMPLE_FORMAT_MAP[:int32]).should == 4
     end

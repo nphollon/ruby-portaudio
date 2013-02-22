@@ -23,7 +23,7 @@ module PortAudio
       params = C::PaStreamParameters.new
       params[:device] = @index
       params[:channel_count] = options[:channels] || 1
-      params[:sample_format] = C::PA_SAMPLE_FORMAT_MAP[ options[:sample_format] || :uint8 ]
+      params[:sample_format] = C::PA_SAMPLE_FORMAT_MAP[ options[:sample_format] || :float32 ]
       sample_rate = options[:sample_rate] || @default_sample_rate
 
       if options[:input]
@@ -37,18 +37,17 @@ module PortAudio
       params = C::PaStreamParameters.new
       params[:device] = @index
       params[:channel_count] = options[:channels] || 1
-      params[:sample_format] = C::PA_SAMPLE_FORMAT_MAP[ options[:sample_format] || :uint8 ]
+      params[:sample_format] = C::PA_SAMPLE_FORMAT_MAP[ options[:sample_format] || :float32 ]
       sample_rate = options[:sample_rate] || @default_sample_rate
       frames    = options[:frames]    || C::PA_FRAMES_PER_BUFFER_UNSPECIFIED
       flags     = options[:flags]     || C::PA_NO_FLAG
       callbackp = options[:callback]  || FFI::Pointer.new(0) # default: blocking mode
       user_data = options[:user_data] || FFI::Pointer.new(0)
 
-      FFI::MemoryPointer.new(:pointer) do |streamp|
-        PortAudio.invoke(:open_stream, streamp, nil, params, sample_rate, frames,
+      streamp =FFI::MemoryPointer.new(:pointer)
+      PortAudio.invoke(:open_stream, streamp, nil, params, sample_rate, frames,
           flags, callbackp, user_data)
-        return Stream.new(streamp.read_pointer)
-      end
+      Stream.new(streamp.read_pointer)
     end
   end
 end

@@ -1,15 +1,8 @@
 require 'spec_helper'
 
 describe "Stream" do
-  before do
-    $stderr.reopen File::NULL
-    PortAudio.invoke(:init)
-    $stderr.reopen STDERR
-  end
-
-  after do
-    PortAudio.invoke(:terminate)
-  end
+  before { PortAudio.init }
+  after { PortAudio.terminate }
 
   describe "while open" do
     before { @stream = PortAudio::default_output_device.open_stream }

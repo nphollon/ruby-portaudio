@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe "SampleBuffer" do
-  it "can be initialized with no options" do
-    PortAudio::SampleBuffer.new
-  end
+  before { PortAudio.init }
+  after { PortAudio.terminate }
+  subject { PortAudio::SampleBuffer.new }
 end

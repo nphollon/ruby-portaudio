@@ -26,7 +26,7 @@ describe "PortAudio" do
 		end
 
 		it "should raise_exception if something exceptional happens" do
-			expect { subject.invoke(:terminate) }.to raise_error(RuntimeError)
+			expect { subject.invoke(:host_api_info, -1) }.to raise_error(RuntimeError)
 		end
 	end
 
@@ -41,44 +41,29 @@ describe "PortAudio" do
 	end
 
 	describe "Host" do
+    before { PortAudio.init }
+		after { PortAudio.terminate }
 
-	  describe "without initialized environment" do
-	    specify { expect { PortAudio.host_count }.to raise_error(RuntimeError) }
-	    specify { expect { PortAudio.default_host }.to raise_error(RuntimeError) }
-	  end
+    specify { PortAudio.host_count.should be >= 0 }
 
-	  describe "in initialized environment" do
-	    before do
-	      $stderr.reopen File::NULL
-	      PortAudio.invoke(:init)
-	      $stderr.reopen STDERR
-	    end
+    describe "default API" do
+      subject { PortAudio.default_host }
 
-	    after do
-	      PortAudio.invoke(:terminate)
-	    end
+      it "should have a name" do
+        subject[:name].should =~ /.+/
+      end
 
-	    specify { PortAudio.host_count.should be >= 0 }
+      specify "number of devices should match C function call" do
+        subject[:devices].length.should == PortAudio::C.device_count
+      end
 
-	    describe "default API" do
-	      subject { PortAudio.default_host }
+      specify "default output index matches C function call" do
+        PortAudio.default_output_device.index.should == PortAudio::C.default_output_device
+      end
 
-	      it "Should have a name" do
-	        subject[:name].should =~ /.+/
-	      end
-
-	      specify "number of devices should match C function call" do
-	        subject[:devices].length.should == PortAudio::C.device_count
-	      end
-
-	      specify "default output index matches C function call" do
-	        PortAudio.default_output_device.index.should == PortAudio::C.default_output_device
-	      end
-
-	      specify "default input index matches C function call" do
-	        PortAudio.default_input_device.index.should == PortAudio::C.default_input_device
-	      end
-	    end
+      specify "default input index matches C function call" do
+        PortAudio.default_input_device.index.should == PortAudio::C.default_input_device
+      end
 	  end
 	end
 end

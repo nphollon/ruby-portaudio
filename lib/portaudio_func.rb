@@ -1,6 +1,16 @@
 module PortAudio
   extend self
 
+  def init(silent=true)
+    $stderr.reopen(File::NULL) if silent
+    invoke :init
+    $stderr.reopen(STDERR)
+  end
+
+  def terminate
+    invoke :terminate
+  end
+  
   def sleep(msec)
     C.sleep msec
   end
@@ -28,7 +38,7 @@ module PortAudio
   end
 
   def default_output_device
-    Device.new PortAudio::C.default_output_device
+    Device.new(invoke :default_output_device)
   end
 
   def default_input_device
@@ -57,5 +67,4 @@ module PortAudio
   def version_text
     C.version_text
   end
-
 end

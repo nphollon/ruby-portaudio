@@ -2,7 +2,6 @@ module PortAudio
   class Stream
     def initialize(pointer)
       @stream = pointer
-      @info = C::PaStreamInfo.new(PortAudio.invoke :stream_info, @stream)
     end
     
     def close
@@ -42,7 +41,7 @@ module PortAudio
     end
     
     def write(buffer)
-      C.Pa_WriteStream(@stream, buffer.to_ptr, buffer.frames)
+      C.write_stream(@stream, buffer.to_ptr, buffer.frames)
     end
     alias_method :<<, :write
   end
