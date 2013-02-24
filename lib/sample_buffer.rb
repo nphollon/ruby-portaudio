@@ -24,24 +24,14 @@ module PortAudio
     
     def [](frame, channel)
       index = (channel * @sample_size) + (frame * @frame_size)
-      case @format
-      when :float32
-        @buffer.get_float32(index)
-      else
-        raise NotImplementedError, "Unsupported sample format #{@format}"
-      end
+      get_sample(index)
     end
     
     def []=(frame, channel, sample)
       index = (channel * @sample_size) + (frame * @frame_size)
-      case @format
-      when :float32
-        @buffer.put_float32(index, sample)
-      else
-        raise NotImplementedError, "Unsupported sample format #{@format}"
-      end
+      put_sample(index, sample)
     end
-    
+
     def fill
       samples = []
       for frame in 0 ... @frames
@@ -49,8 +39,21 @@ module PortAudio
           samples << yield(frame, channel)
         end
       end
-      @buffer.put_array_of_float32(0, samples)
+
+      put_array_of_samples(0, samples)
       self
+    end
+
+    def get_sample(index)
+      @buffer.send("get_#{format}", index)
+    end
+
+    def put_sample(index, sample)
+      @buffer.send("put_#{format}", index, sample)
+    end
+
+    def put_array_of_samples(offset, samples)
+      @buffer.send("put_array_of_#{format}", offset, samples)
     end
   end
 end
