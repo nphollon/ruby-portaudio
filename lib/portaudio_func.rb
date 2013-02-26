@@ -48,16 +48,12 @@ module PortAudio
   def invoke(method, *args)
     return_value = C.send method, *args
     if (return_value.respond_to?(:<) and return_value < 0)
-      raise_error
+      raise APIError, C.error_text(return_value)
     elsif return_value.respond_to?(:null?) and return_value.null?
-      raise_error
+      err = C::PaHostErrorInfo.new(C.last_host_error_info)
+      raise APIError, err[:error_text]
     end
     return_value
-  end
-  
-  def raise_error
-    err = C::PaHostErrorInfo.new(C.last_host_error_info())
-    raise RuntimeError, err[:error_text]
   end
   
   def version
@@ -66,5 +62,8 @@ module PortAudio
   
   def version_text
     C.version_text
+  end
+
+  class APIError < IOError
   end
 end

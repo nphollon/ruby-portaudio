@@ -1,30 +1,30 @@
--10000  PortAudio not initialized
--9999  Unanticipated host error
--9998  Invalid number of channels
--9997  Invalid sample rate
--9996  Invalid device
--9995  Invalid flag
--9994  Sample format not supported
--9993  Illegal combination of I/O devices
--9992  Insufficient memory
--9991  Buffer too big
--9990  Buffer too small
--9989  No callback routine specified
--9988  Invalid stream pointer
--9987  Wait timed out
--9986  Internal PortAudio error
--9985  Device unavailable
--9984  Incompatible host API specific stream info
--9983  Stream is stopped
--9982  Stream is not stopped
--9981  Input overflowed
--9980  Output underflowed
--9979  Host API not found
--9978  Invalid host API
--9977  Can't read from a callback stream
--9976  Can't write to a callback stream
--9975  Can't read from an output only stream
--9974  Can't write to an input only stream
--9973  Incompatible stream host API
--9972  Bad buffer pointer
+-10000  PortAudio not initialized APIError
+-9999  Unanticipated host error   APIError
+-9998  Invalid number of channels FormatError
+-9997  Invalid sample rate        FormatError
+-9996  Invalid devices            DeviceError
+-9995  Invalid flag               FormatError
+-9994  Sample format not supported  FormatError
+-9993  Illegal combination of I/O devices DeviceError
+-9992  Insufficient memory        MemoryError
+-9991  Buffer too big             BufferError
+-9990  Buffer too small           BufferError
+-9989  No callback routine specified BufferError
+-9988  Invalid stream pointer     StreamError
+-9987  Wait timed output          APIError
+-9986  Internal PortAudio error   APIError
+-9985  Device unavailable         DeviceError
+-9984  Incompatible host API specific stream info StreamError
+-9983  Stream is stopped          StreamError
+-9982  Stream is not stopped      StreamError
+-9981  Input overflowed           BufferError
+-9980  Output underflowed         BufferError
+-9979  Host API not found         APIError
+-9978  Invalid host API           APIError
+-9977  Can't read from a callback stream StreamError
+-9976  Can't write to a callback stream StreamError
+-9975  Can't read from an output only stream StreamError
+-9974  Can't write to an input only stream StreamError
+-9973  Incompatible stream host API StreamError
+-9972  Bad buffer pointer BufferError
 0  Success

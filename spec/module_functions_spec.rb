@@ -20,13 +20,13 @@ describe "PortAudio" do
 	describe "invoke" do
 		it "should return normally if nothing is wrong" do
 			$stderr.reopen(File::NULL)
-			expect { subject.invoke(:init) }.to_not raise_error(RuntimeError)
+			expect { subject.invoke(:init) }.to_not raise_error
 			subject.invoke(:terminate)
 			$stderr.reopen(STDERR)
 		end
 
 		it "should raise_exception if something exceptional happens" do
-			expect { subject.invoke(:host_api_info, -1) }.to raise_error(RuntimeError)
+			expect { subject.invoke(:host_api_info, -1) }.to raise_error(PortAudio::APIError)
 		end
 	end
 
