@@ -44,6 +44,14 @@ module PortAudio
       self
     end
 
+    def each
+      for frame in 0 ... @frames
+        for channel in 0 ... @channels
+          yield frame, channel, self[frame, channel]
+        end
+      end
+    end
+
     def get_sample(index)
       @buffer.send("get_#{format}", index)
     end

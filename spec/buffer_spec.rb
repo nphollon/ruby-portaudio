@@ -46,4 +46,27 @@ describe "SampleBuffer" do
       buffer[0,0].should == 6
     end
   end
+
+  describe "each" do
+    subject { PortAudio::SampleBuffer.new(format: :float32, frames: 10, channels: 2) }
+
+    before do
+      subject.fill do |f, c|
+        f*10 + c
+      end
+    end
+
+    it "should accept a block" do
+      STDOUT.should_receive(:puts).with(0).exactly(20).times
+      subject.each do
+        puts 0
+      end
+    end
+
+    it "should pass frame number, channel number, and sample to block" do
+      subject.each do |f,c,s|
+        s.should == f*10 + c
+      end
+    end
+  end
 end
