@@ -1,69 +1,58 @@
+require 'inline'
+
 module PortAudio
-  extend self
+  SAMPLE_SIZE = { float32: 4, int32: 4, int24: 3, int16: 2, int8: 1, uint8: 1 }
 
-  def init(silent=true)
-    $stderr.reopen(File::NULL) if silent
-    invoke :init
-    $stderr.reopen(STDERR)
-  end
+  inline do |builder|
+    builder.add_link_flags "/usr/lib/i386-linux-gnu/libportaudio.a -lasound -ljack"
+    builder.include '"portaudio.h"'
 
-  def terminate
-    invoke :terminate
+    builder.prefix <<-EOC
+      int check_error_code(int error_code) {
+        if (error_code < 0)
+          rb_raise(rb_eIOError, "%s", Pa_GetErrorText(error_code));
+        return error_code;
+      }
+    EOC
+
+    builder.c_singleton <<-EOC
+      void init() {
+        Pa_Initialize();
+      }
+    EOC
+
+    builder.c_singleton <<-EOC
+      void terminate() {
+        check_error_code( Pa_Terminate() );
+      }
+    EOC
+
+    builder.c_singleton <<-EOC
+      int version() {
+        return Pa_GetVersion();
+      }
+    EOC
+
+    builder.c_singleton <<-EOC
+      char * version_text() {
+        return Pa_GetVersionText();
+      }
+    EOC
+
+    builder.c_singleton <<-EOC
+      void sleep(long msec) {
+        Pa_Sleep(msec);
+      }
+    EOC
   end
   
-  def sleep(msec)
-    C.sleep msec
-  end
-  
-  def sample_size(format)
-    invoke :sample_size, C::PA_SAMPLE_FORMAT_MAP[format]
+  def self.sample_size(format)
+    SAMPLE_SIZE[format]
   end
 
-  def host_count
-    PortAudio.invoke :host_api_count
+  def self.default_output_device
   end
 
-  def default_host
-    host C.default_host_api
-  end
-
-  def host(index)
-    info = C::PaHostApiInfo.new( PortAudio.invoke(:host_api_info, index) )
-    devices = []
-    (0...info[:device_count]).each do |i|
-      devices << Device.new( C.host_api_device_index_to_device_index(index, i) )
-    end
-
-    {name: info[:name], devices: devices}
-  end
-
-  def default_output_device
-    Device.new(invoke :default_output_device)
-  end
-
-  def default_input_device
-    Device.new PortAudio::C.default_input_device
-  end
-
-  def invoke(method, *args)
-    return_value = C.send method, *args
-    if return_value.respond_to?(:<) and return_value < 0
-      raise APIError, C.error_text(return_value)
-    elsif return_value.respond_to?(:null?) and return_value.null?
-      err = C::PaHostErrorInfo.new(C.last_host_error_info)
-      raise APIError, err[:error_text]
-    end
-    return_value
-  end
-  
-  def version
-    C.version
-  end
-  
-  def version_text
-    C.version_text
-  end
-
-  class APIError < IOError
+  def self.default_input_device
   end
 end

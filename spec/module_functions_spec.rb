@@ -1,69 +1,59 @@
 require 'spec_helper'
-require 'portaudio'
+require_relative '../portaudio'
 
 describe "PortAudio" do
 	subject { PortAudio }
 
-	it "delegates version to C module" do
-		subject.version.should == subject::C.version
-	end
+  its(:version) { should == 1899 }
+  its(:version_text) { should == "PortAudio V19-devel (built Oct  8 2012 16:25:16)" }
+  it { should respond_to(:sleep).with(1) }
 
-	it "delegates version_text to C module" do
-		subject.version_text.should == subject::C.version_text
-	end
+  describe "sample_size" do
+    it "returns 4 for :float32" do
+      subject.sample_size(:float32).should == 4
+    end
 
-	it "delegates sleep to C module" do
-		subject::C.should_receive(:sleep).with(5)
-		subject.sleep(5)
-	end
-	
-	describe "invoke" do
-		it "should return normally if nothing is wrong" do
-			$stderr.reopen(File::NULL)
-			expect { subject.invoke(:init) }.to_not raise_error
-			subject.invoke(:terminate)
-			$stderr.reopen(STDERR)
-		end
+    it "returns 4 for :int32" do
+      subject.sample_size(:int32).should == 4
+    end
 
-		it "should raise_exception if something exceptional happens" do
-			expect { subject.invoke(:host_api_info, -1) }.to raise_error(PortAudio::APIError)
-		end
-	end
+    it "returns 3 for :int24" do
+      subject.sample_size(:int24).should == 3
+    end
 
-	describe "sample size" do
-		it "returns sample size for valid arguments" do
-			subject.sample_size(:int32).should == 4
-		end
+    it "returns 2 for :int16" do
+      subject.sample_size(:int16).should == 2
+    end
 
-		it "raises exception for invalid arguments" do
-			expect { subject.sample_size(-1) }.to raise_error(TypeError)
-		end
-	end
+    it "returns 1 for :int8" do
+      subject.sample_size(:int8).should == 1
+    end
 
-	describe "Host" do
-    before { PortAudio.init }
-		after { PortAudio.terminate }
+    it "returns 1 for :uint8" do
+      subject.sample_size(:uint8).should == 1
+    end
 
-    specify { PortAudio.host_count.should be >= 0 }
+    it "returns nil otherwise" do
+      subject.sample_size(:custom).should be_nil
+    end
+  end
 
-    describe "default API" do
-      subject { PortAudio.default_host }
+  context "before PortAudio is initialized" do
+    specify "terminate should raise error" do
+      expect { PortAudio.terminate }.to raise_error(IOError, "PortAudio not initialized")
+    end
+  end
 
-      it "should have a name" do
-        subject[:name].should =~ /.+/
+  context "after PortAudio is initialized" do
+    before (:all) { PortAudio.init }
+    after (:all) { PortAudio.terminate }
+
+    describe "terminate" do
+      it "should not raise error if init called first" do
+        expect { PortAudio.terminate }.not_to raise_error
+        PortAudio.init
       end
+    end
 
-      specify "number of devices should match C function call" do
-        subject[:devices].length.should == PortAudio::C.device_count
-      end
-
-      specify "default output index matches C function call" do
-        PortAudio.default_output_device.index.should == PortAudio::C.default_output_device
-      end
-
-      specify "default input index matches C function call" do
-        PortAudio.default_input_device.index.should == PortAudio::C.default_input_device
-      end
-	  end
-	end
+  end
 end

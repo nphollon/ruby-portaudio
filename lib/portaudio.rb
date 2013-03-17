@@ -1,5 +1,0 @@
-require_relative './c_bindings'
-require_relative './portaudio_func'
-require_relative './stream'
-require_relative './sample_buffer'
-require_relative './device'
