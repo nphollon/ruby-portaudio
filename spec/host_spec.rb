@@ -20,33 +20,45 @@ describe "Host" do
       its (:name) { should =~ /.+/ }
       its (:device_count) { should be > 0 }
       its (:type) { should == :alsa }
-      its (:default_output_device) { should == PortAudio.default_output_device }
-      its (:default_input_device) { should == PortAudio.default_input_device }
+      its (:default_output_device_id) { should == 10 }
+      its (:default_input_device_id) { should == 10 }
+      its (:default_output_device) { should == PortAudio::Device.default_output_device }
+      its (:default_input_device) { should == PortAudio::Device.default_input_device }
+      its (:id) { should == 0 }
+
+      it "should have all devices" do
+        device_list = subject.devices
+        (0...12).each do |i|
+          device_list.include?(PortAudio::Device.find_by_id(i)).should be_true
+        end
+      end
     end
 
-    describe "host_api" do
+    describe "find_by_id" do
       specify "should not raise initialization error" do
-        expect { subject.find_by_index(1) }.to_not raise_error(IOError, "PortAudio not initialized")
+        expect { subject.find_by_id(1) }.to_not raise_error(IOError, "PortAudio not initialized")
       end
 
       it "should return default api if index is 0" do
-        subject.find_by_index(0).should == PortAudio::Host.default_api
+        subject.find_by_id(0).should == PortAudio::Host.default_api
       end
 
-      describe "host_api(1)" do
-        subject { PortAudio::Host.find_by_index(1) }
+      describe "find_by_type_id(1)" do
+        subject { PortAudio::Host.find_by_id(1) }
 
         its (:name) { should == "OSS" }
         its (:type) { should == :oss }
         its (:device_count) { should == 0 }
+        its (:devices) { should be_empty }
+        its (:id) { should == 1 }
       end
 
       it "should raise error if api index is out of range" do
-        expect { subject.find_by_index(2) }.to raise_error(IOError, "Host API index out of range")
+        expect { subject.find_by_id(2) }.to raise_error(RangeError, "Host API index out of range")
       end
 
       it "should raise error if api index is negative" do
-        expect { subject.find_by_index(-1) }.to raise_error(IOError, "Host API index out of range")
+        expect { subject.find_by_id(-1) }.to raise_error(RangeError, "Host API index out of range")
       end
     end
 
@@ -60,24 +72,40 @@ describe "Host" do
       end
 
       it "returns oss host if type id is 7" do
-        subject.find_by_type_id(7).should == PortAudio::Host.find_by_index(1)
+        subject.find_by_type_id(7).should == PortAudio::Host.find_by_id(1)
       end
 
       it "raises error otherwise" do
         expect { subject.find_by_type_id(1) }.to raise_error(IOError, "Host API not found")
       end
     end
+
+    describe "new" do
+      it "should be private" do
+        expect { subject.new }.to raise_error(NoMethodError)
+      end
+    end
   end
 
 
   context "instance" do
-    subject { PortAudio::Host.new }
+    subject { PortAudio::Host.send(:new) }
 
     its(:name) { should == "" }
     its(:device_count) { should == 0 }
     its(:type) { should == :in_development }
+    its(:default_output_device_id) { should == -1 }
+    its(:default_input_device_id) { should == -1 }
     its(:default_output_device) { should be_nil }
     its(:default_input_device) { should be_nil }
+
+    it "throws an error if id is called" do
+      expect { subject.id }.to raise_error(IOError, "Host API not found")
+    end
+
+    it "throws an error if devices is called" do
+      expect { subject.devices }.to raise_error(IOError, "Host API not found")
+    end
 
     describe "type_id=" do
       it "should be a private method" do
@@ -172,25 +200,45 @@ describe "Host" do
       end
     end
 
+    describe "default_input_device_id=" do
+      it "should be private" do
+        expect { subject.default_input_device_id = 0 }.to raise_error(NoMethodError)
+      end
+    end
+
+    describe "default_output_device_id=" do
+      it "should be private" do
+        expect { subject.default_output_device_id = 0 }.to raise_error(NoMethodError)
+      end
+    end
+
     describe "==" do
+      let (:other_host) { PortAudio::Host.send(:new) }
       it { should_not == "string" }
-      it { should == PortAudio::Host.new }
+      it { should == other_host }
 
       it "requires that type ids be equal" do
-        other_host = PortAudio::Host.new
         other_host.send(:type_id=, 1)
         subject.should_not == other_host
       end
 
       it "requires that names be equal" do
-        other_host = PortAudio::Host.new
         other_host.send(:name=, "name")
         subject.should_not == other_host
       end
 
       it "requires that device_counts be equal" do
-        other_host = PortAudio::Host.new
         other_host.send(:device_count=, 5)
+        subject.should_not == other_host
+      end
+
+      it "requires that default_output_devices be equal" do
+        other_host.send :default_output_device_id=, 0
+        subject.should_not == other_host
+      end
+
+      it "requires that default_input_devices be equal" do
+        other_host.send :default_input_device_id=, 0
         subject.should_not == other_host
       end
     end
