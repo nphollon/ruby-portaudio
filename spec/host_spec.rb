@@ -85,6 +85,17 @@ describe "Host" do
         expect { subject.new }.to raise_error(NoMethodError)
       end
     end
+
+    describe "all" do
+      subject { PortAudio::Host.all }
+
+      its (:length) { should == 2 }
+
+      it "should contain all host APIs" do
+        subject[0].should == PortAudio::Host.find_by_id(0)
+        subject[1].should == PortAudio::Host.find_by_id(1)
+      end
+    end
   end
 
 

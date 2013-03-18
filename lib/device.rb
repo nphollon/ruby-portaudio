@@ -103,6 +103,12 @@ module PortAudio
     private :name=, :max_input_channels=, :max_output_channels=, :default_low_input_latency=, :default_low_output_latency=,
             :default_high_input_latency=, :default_high_output_latency=, :default_sample_rate=, :host_api_id=
 
+    def self.all
+      device_list = []
+      (0...count).each { |i| device_list << find_by_id(i) }
+      device_list
+    end
+
     def ==(other)
       begin
         host_api_id == other.host_api_id and

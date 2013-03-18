@@ -58,6 +58,18 @@ describe "Device" do
         expect { subject.new }.to raise_error(NoMethodError)
       end
     end
+
+    describe "all" do
+      subject { PortAudio::Device.all }
+
+      its (:length) { should == 12 }
+
+      it "should contain all host APIs" do
+        (0...12).each do |i|
+          subject[i].should == PortAudio::Device.find_by_id(i)
+        end
+      end
+    end
   end
 
 

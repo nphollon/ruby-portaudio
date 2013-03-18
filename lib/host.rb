@@ -128,6 +128,7 @@ module PortAudio
 
       builder.c <<-EOC
         int id() {
+          initialize_before_call( Pa_GetHostApiCount );
           PaHostApiInfo *host;
           Data_Get_Struct(self, PaHostApiInfo, host);
           return check_error_code( Pa_HostApiTypeIdToHostApiIndex(host->type) );
@@ -140,6 +141,12 @@ module PortAudio
 
     def type
       API_TYPES[type_id] or API_TYPES[0]
+    end
+
+    def self.all
+      host_list = []
+      (0...count).each { |i| host_list << find_by_id(i) }
+      host_list
     end
 
     def ==(other)
