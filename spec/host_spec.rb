@@ -20,15 +20,15 @@ describe "Host" do
       its (:name) { should =~ /.+/ }
       its (:device_count) { should be > 0 }
       its (:type) { should == :alsa }
-      its (:default_output_device_id) { should == 10 }
-      its (:default_input_device_id) { should == 10 }
+      its (:default_output_device_id) { should == PortAudio::Device.default_output_device.id }
+      its (:default_input_device_id) { should == PortAudio::Device.default_input_device.id }
       its (:default_output_device) { should == PortAudio::Device.default_output_device }
       its (:default_input_device) { should == PortAudio::Device.default_input_device }
       its (:id) { should == 0 }
 
       it "should have all devices" do
         device_list = subject.devices
-        (0...12).each do |i|
+        (0...PortAudio::Device.count).each do |i|
           device_list.include?(PortAudio::Device.find_by_id(i)).should be_true
         end
       end

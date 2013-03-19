@@ -1,14 +1,15 @@
 require 'inline'
 
 module PortAudio
-  SAMPLE_SIZE = { float32: 4, int32: 4, int24: 3, int16: 2, int8: 1, uint8: 1 }
+  FORMAT_SAMPLE_SIZE = { float32: 4, int32: 4, int24: 3, int16: 2, int8: 1, uint8: 1 }
+  FORMAT_HEX_CODE = { float32: 0x01, int32: 0x02, int24: 0x04, int16: 0x08, int8: 0x10, uint8: 0x20 }
 
   def self.prepare_builder(builder)
     builder.add_link_flags "/usr/lib/i386-linux-gnu/libportaudio.a -lasound -ljack"
     builder.include '"portaudio.h"'
 
     builder.prefix <<-EOC
-      int check_error_code(int error_code) {
+      long check_error_code(long error_code) {
         if (error_code < 0)
           rb_raise(rb_eIOError, "%s", Pa_GetErrorText(error_code));
         return error_code;
@@ -64,7 +65,7 @@ module PortAudio
   end
   
   def self.sample_size(format)
-    SAMPLE_SIZE[format]
+    FORMAT_SAMPLE_SIZE[format]
   end
 
   def self.default_output_device

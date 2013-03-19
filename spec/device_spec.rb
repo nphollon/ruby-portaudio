@@ -18,18 +18,8 @@ describe "Device" do
         expect { subject.find_by_id(12) }.to raise_error(RangeError, "Device index out of range")
       end
 
-      describe "find_by_id(0)" do
-        subject { PortAudio::Device.find_by_id(0) }
-
-        its (:name) { should == "HDA Intel PCH: STAC92xx Analog (hw:0,0)" }
-        its (:default_sample_rate) { should be_within(1e-6).of(44100) }
-        its (:max_input_channels) { should == 2 }
-        its (:max_output_channels) { should == 2 }
-        its (:default_low_input_latency) { should be_within(1e-6).of(0.011610) }
-        its (:default_low_output_latency) { should be_within(1e-6).of(0.011610) }
-        its (:default_high_input_latency) { should be_within(1e-6).of(0.046440) }
-        its (:default_high_output_latency) { should be_within(1e-6).of(0.046440) }
-        its (:host_api) { should == PortAudio::Host.default_api }
+      it "returns a device" do
+        subject.find_by_id(0).should be_kind_of(PortAudio::Device)
       end
     end
 
@@ -62,10 +52,10 @@ describe "Device" do
     describe "all" do
       subject { PortAudio::Device.all }
 
-      its (:length) { should == 12 }
+      its (:length) { should == PortAudio::Device.count }
 
-      it "should contain all host APIs" do
-        (0...12).each do |i|
+      it "should contain all devices" do
+        (0...PortAudio::Device.count).each do |i|
           subject[i].should == PortAudio::Device.find_by_id(i)
         end
       end
@@ -86,6 +76,108 @@ describe "Device" do
     its (:default_sample_rate) { should == 0 }
     its (:host_api_id) { should == -1 }
     its (:host_api) { should be_nil }
+
+    describe "open_stream" do
+      let(:device) { PortAudio::Device.default_output_device }
+      subject { PortAudio::Stream }
+
+      it "should call open" do
+        subject.should_receive(:new).with(device.id, 1, 1, 44100, 0, 1, 1, 0, 0).and_call_original
+        device.open_stream
+      end
+
+      it "has a channels option" do
+        subject.should_receive(:new).with(device.id, 2, 1, 44100, 0, 1, 1, 0, 0)
+        device.open_stream(channels: 2)
+      end
+
+      describe "format option" do
+        specify ":float32 => 1" do
+          subject.should_receive(:new).with(device.id, 1, 1, 44100, 0, 1, 1, 0, 0)
+          device.open_stream(format: :float32)
+        end
+
+        specify ":int32 => 2" do
+          subject.should_receive(:new).with(device.id, 1, 2, 44100, 0, 1, 1, 0, 0)
+          device.open_stream(format: :int32)
+        end
+        
+        specify ":int24 => 4" do
+          subject.should_receive(:new).with(device.id, 1, 4, 44100, 0, 1, 1, 0, 0)
+          device.open_stream(format: :int24)
+        end
+
+        specify ":int16 => 8" do
+          subject.should_receive(:new).with(device.id, 1, 8, 44100, 0, 1, 1, 0, 0)
+          device.open_stream(format: :int16)
+        end
+
+        specify ":int8 => 16" do
+          subject.should_receive(:new).with(device.id, 1, 16, 44100, 0, 1, 1, 0, 0)
+          device.open_stream(format: :int8)
+        end
+
+        specify ":uint8 => 32" do
+          subject.should_receive(:new).with(device.id, 1, 32, 44100, 0, 1, 1, 0, 0)
+          device.open_stream(format: :uint8)
+        end
+
+        specify "other formats raise exception" do
+          expect { device.open_stream(format: :custom) }.to raise_error(TypeError)
+        end
+      end
+
+      it "has a sample_rate option" do
+        subject.should_receive(:new).with(device.id, 1, 1, 8000, 0, 1, 1, 0, 0)
+        device.open_stream(sample_rate: 8000)
+      end    
+
+      it "has a frames_per_buffer option" do
+        subject.should_receive(:new).with(device.id, 1, 1, 44100, 256, 1, 1, 0, 0)
+        device.open_stream(frames_per_buffer: 256)
+      end
+
+      it "has a clipping option" do
+        subject.should_receive(:new).with(device.id, 1, 1, 44100, 0, 0, 1, 0, 0)
+        device.open_stream(clipping: false)
+      end
+
+      it "has a dithering option" do
+        subject.should_receive(:new).with(device.id, 1, 1, 44100, 0, 1, 0, 0, 0)
+        device.open_stream(dithering: false)
+      end
+
+      it "has a output_priming option" do
+        subject.should_receive(:new).with(device.id, 1, 1, 44100, 0, 1, 1, 1, 0)
+        device.open_stream(output_priming: true)
+      end
+
+      it "has a suggested_latency option" do
+        subject.should_receive(:new).with(device.id, 1, 1, 44100, 0, 1, 1, 0, 0.5)
+        device.open_stream(suggested_latency: 0.5)
+      end
+    end
+
+    describe "supports_format?" do
+      subject { PortAudio::Device.default_output_device }
+
+      it "supports default params" do
+        subject.supports_format?.should be_true
+      end
+
+      it "support output format that matches device parameters" do
+        params = { channels: 1, format: :float32, sample_rate: 44100 }
+        subject.supports_format?(params).should be_true
+      end
+
+      it "does not support channels > max_output_channels" do
+        subject.supports_format?(channels: 129).should be_false
+      end
+
+      it "does not support arbitrary sample rates" do
+        subject.supports_format?(sample_rate: 1234567890).should be_false
+      end
+    end
 
     describe "id" do
       it "should be the index of the device in Device.all" do

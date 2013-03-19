@@ -97,11 +97,19 @@ module PortAudio
           }
         }
       EOC
+
+      builder.c <<-EOC
+        VALUE check_format_support(const int id, const int channels, const unsigned long format, const double sample_rate) {
+          PaStreamParameters params = { id, channels, format, 0, 0 };
+          return Pa_IsFormatSupported(0, &params, sample_rate) ? Qfalse : Qtrue;
+        }
+      EOC
     end
 
     private_class_method :new
-    private :name=, :max_input_channels=, :max_output_channels=, :default_low_input_latency=, :default_low_output_latency=,
-            :default_high_input_latency=, :default_high_output_latency=, :default_sample_rate=, :host_api_id=
+    private :name=, :max_input_channels=, :max_output_channels=, :default_low_input_latency=,
+            :default_low_output_latency=, :default_high_input_latency=, :default_high_output_latency=,
+            :default_sample_rate=, :host_api_id=, :check_format_support
 
     def self.all
       device_list = []
@@ -111,6 +119,28 @@ module PortAudio
 
     def id
       PortAudio::Device.all.index(self)
+    end
+
+    def open_stream(options = {})
+      channels = options[:channels] || 1
+      format = FORMAT_HEX_CODE[ options[:format] || :float32 ]
+      sample_rate = options[:sample_rate] || default_sample_rate
+      frames_per_buffer = options[:frames_per_buffer] || 0
+      clipping = (options[:clipping] or options[:clipping].nil?) ? 1 : 0
+      dithering = (options[:dithering] or options[:dithering].nil?) ? 1 : 0
+      output_priming = options[:output_priming]? 1 : 0
+      suggested_latency = options[:suggested_latency] || 0
+
+      PortAudio::Stream.new id, channels, format, sample_rate, frames_per_buffer,
+                            clipping, dithering, output_priming, suggested_latency
+    end
+
+    def supports_format?(options = {})
+      channels = options[:channels] || 1
+      format = options[:format] || :float32
+      sample_rate = options[:sample_rate] || default_sample_rate
+      
+      check_format_support id, channels, FORMAT_HEX_CODE[format], sample_rate
     end
 
     def ==(other)
