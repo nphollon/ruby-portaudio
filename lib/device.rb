@@ -109,6 +109,10 @@ module PortAudio
       device_list
     end
 
+    def id
+      PortAudio::Device.all.index(self)
+    end
+
     def ==(other)
       begin
         host_api_id == other.host_api_id and

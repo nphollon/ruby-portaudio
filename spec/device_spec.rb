@@ -87,6 +87,15 @@ describe "Device" do
     its (:host_api_id) { should == -1 }
     its (:host_api) { should be_nil }
 
+    describe "id" do
+      it "should be the index of the device in Device.all" do
+        devices = PortAudio::Device.all
+        (0...PortAudio::Device.count).each do |i|
+          devices[i].id.should == i
+        end
+      end
+    end
+
     describe "name=" do
       it "should be private" do
         expect { subject.name = "name" }.to raise_error(NoMethodError)
