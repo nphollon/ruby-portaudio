@@ -1,3 +1,5 @@
+require 'ffi'
+
 module PortAudio  
   # A memory buffer for interleaved PCM data
   class SampleBuffer
