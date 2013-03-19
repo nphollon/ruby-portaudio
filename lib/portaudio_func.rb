@@ -67,10 +67,4 @@ module PortAudio
   def self.sample_size(format)
     FORMAT_SAMPLE_SIZE[format]
   end
-
-  def self.default_output_device
-  end
-
-  def self.default_input_device
-  end
 end

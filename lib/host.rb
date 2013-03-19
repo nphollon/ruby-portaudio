@@ -32,6 +32,12 @@ module PortAudio
 
           return Data_Wrap_Struct(class, 0, free_host_api, host);
         }
+
+        PaHostApiInfo * get_host(VALUE self) {
+          PaHostApiInfo *host;
+          Data_Get_Struct(self, PaHostApiInfo, host);
+          return host;          
+        }
       EOC
 
       builder.c_singleton <<-EOC
@@ -80,8 +86,7 @@ module PortAudio
 
       builder.c <<-EOC
         VALUE default_output_device() {
-          PaHostApiInfo *host;
-          Data_Get_Struct(self, PaHostApiInfo, host);
+          PaHostApiInfo *host = get_host(self);
           if (host->defaultOutputDevice < 0)
             return Qnil;
           else {
@@ -92,8 +97,7 @@ module PortAudio
 
       builder.c <<-EOC
         VALUE default_input_device() {
-          PaHostApiInfo *host;
-          Data_Get_Struct(self, PaHostApiInfo, host);
+          PaHostApiInfo *host = get_host(self);
           if (host->defaultInputDevice < 0)
             return Qnil;
           else {
@@ -105,11 +109,10 @@ module PortAudio
       builder.c <<-EOC
         VALUE devices() {
           int i, device_count, api_index;
-          PaHostApiInfo *host;
           VALUE rb_device_list;
           VALUE *device_array;
+          PaHostApiInfo *host = get_host(self);
 
-          Data_Get_Struct(self, PaHostApiInfo, host);
           device_count = host->deviceCount;
           device_array = malloc(sizeof(VALUE) * device_count);
 
@@ -129,8 +132,7 @@ module PortAudio
       builder.c <<-EOC
         int id() {
           initialize_before_call( Pa_GetHostApiCount );
-          PaHostApiInfo *host;
-          Data_Get_Struct(self, PaHostApiInfo, host);
+          PaHostApiInfo *host = get_host(self);
           return check_error_code( Pa_HostApiTypeIdToHostApiIndex(host->type) );
         }
       EOC
