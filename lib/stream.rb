@@ -8,6 +8,7 @@ module PortAudio
       builder.prefix <<-EOC
         typedef struct Stream {
           void *stream_pointer;
+          void *buffer;
           int device_id;
           int channel_count;
           unsigned long format_id;
@@ -17,8 +18,11 @@ module PortAudio
           int dithering;
           int output_priming;
           double latency;
-          float *buffer;
         } Stream;
+
+        void allocate_stream_buffer(Stream *stream) {
+          stream->buffer = malloc( sizeof(float) * stream->frames_per_buffer * stream->channel_count);
+        }
 
         void free_stream(Stream *stream) {
           Pa_CloseStream(stream->stream_pointer);
@@ -43,14 +47,10 @@ module PortAudio
           return get_stream(self)->stream_pointer;
         }
 
-        void write_float32(Stream *stream) {
+        void write_float32(Stream *stream, unsigned long limit) {
           int i;
-          unsigned long limit = stream->frames_per_buffer * stream->channel_count;
-
           for (i = 0; i < limit; i++)
-            stream->buffer[i] = (float)NUM2DBL( rb_yield(Qnil) );
-          
-          Pa_WriteStream(stream->stream_pointer, stream->buffer, limit);
+            ((float *)stream->buffer)[i] = (float)NUM2DBL( rb_yield(Qnil) );
         }
 
         void write_int32(Stream *stream) { rb_yield(Qnil); }
@@ -72,7 +72,8 @@ module PortAudio
           stream->clipping = clipping;
           stream->dithering = dithering;
           stream->output_priming = output_priming;
-          stream->buffer = malloc( sizeof(float) * frames_per_buffer * channel_count);
+
+          allocate_stream_buffer(stream);
 
           initialize_before_call( Pa_GetHostApiCount );
           PaStreamParameters params = { device_id, channel_count, format_id, suggested_latency, 0 };
@@ -169,9 +170,11 @@ module PortAudio
       builder.c <<-EOC
         void write() {
           Stream *stream = get_stream(self);
+          unsigned long limit = stream->frames_per_buffer * stream->channel_count;
+
           switch (get_stream(self)->format_id) {
             case paFloat32:
-              write_float32(stream);
+              write_float32(stream, limit);
               break;
             case paInt32:
               write_int32(stream);
@@ -188,6 +191,8 @@ module PortAudio
             default:
               rb_raise(rb_eNotImpError, "int24 format not yet supported");
           }
+
+          Pa_WriteStream(stream->stream_pointer, stream->buffer, limit);
         }
       EOC
     end
