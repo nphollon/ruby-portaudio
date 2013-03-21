@@ -21,7 +21,7 @@ module PortAudio
         } Stream;
 
         void allocate_stream_buffer(Stream *stream) {
-          stream->buffer = malloc( sizeof(float) * stream->frames_per_buffer * stream->channel_count);
+          
         }
 
         void free_stream(Stream *stream) {
@@ -48,15 +48,34 @@ module PortAudio
         }
 
         void write_float32(Stream *stream, unsigned long limit) {
-          int i;
+          unsigned long i;
           for (i = 0; i < limit; i++)
             ((float *)stream->buffer)[i] = (float)NUM2DBL( rb_yield(Qnil) );
         }
 
-        void write_int32(Stream *stream) { rb_yield(Qnil); }
-        void write_int16(Stream *stream) { rb_yield(Qnil); }
-        void write_int8(Stream *stream) { rb_yield(Qnil); }
-        void write_uint8(Stream *stream) { rb_yield(Qnil); }
+        void write_int32(Stream *stream, unsigned long limit) {
+          unsigned long i;
+          for (i = 0; i < limit; i++)
+            ((long *)stream->buffer)[i] = FIX2LONG( rb_yield(Qnil) );
+        }
+
+        void write_int16(Stream *stream, unsigned long limit) {
+          unsigned long i;
+          for (i = 0; i < limit; i++)
+            ((int *)stream->buffer)[i] = FIX2INT( rb_yield(Qnil) );
+        }
+
+        void write_int8(Stream *stream, unsigned long limit) {
+          unsigned long i;
+          for (i = 0; i < limit; i++)
+            ((signed char *)stream->buffer)[i] = (signed char)FIX2INT( rb_yield(Qnil) );
+        }
+
+        void write_uint8(Stream *stream, unsigned long limit) {
+          unsigned long i;
+          for (i = 0; i < limit; i++)
+            ((unsigned char *)stream->buffer)[i] = (unsigned char)FIX2INT( rb_yield(Qnil) );
+        }
       EOC
 
       builder.c_singleton <<-EOC
@@ -73,7 +92,7 @@ module PortAudio
           stream->dithering = dithering;
           stream->output_priming = output_priming;
 
-          allocate_stream_buffer(stream);
+          stream->buffer = malloc( Pa_GetSampleSize(format_id) * frames_per_buffer * channel_count);
 
           initialize_before_call( Pa_GetHostApiCount );
           PaStreamParameters params = { device_id, channel_count, format_id, suggested_latency, 0 };
@@ -177,16 +196,16 @@ module PortAudio
               write_float32(stream, limit);
               break;
             case paInt32:
-              write_int32(stream);
+              write_int32(stream, limit);
               break;
             case paInt16:
-              write_int16(stream);
+              write_int16(stream, limit);
               break;
             case paInt8:
-              write_int8(stream);
+              write_int8(stream, limit);
               break;
             case paUInt8:
-              write_uint8(stream);
+              write_uint8(stream, limit);
               break;
             default:
               rb_raise(rb_eNotImpError, "int24 format not yet supported");

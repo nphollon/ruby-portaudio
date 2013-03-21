@@ -8,7 +8,7 @@ t = 0
 1000.times do
   stream.write do
     t += 1.0/44100
-    Math.sin(t * 880 * Math::PI)*Math.sin(t*10*Math::PI)
+    Math.sin(t * 880 * Math::PI) * Math.sin(t * 10 * Math::PI)
   end
 end
 stream.stop
