@@ -8,6 +8,88 @@ end
 describe "Stream" do
   let(:device) { PortAudio::Device.default_output_device }
 
+  describe "write" do
+    it "does not support int24 format" do
+      expect do
+        device.open_stream(frames_per_buffer: 1, format: :int24).write {}
+      end.to raise_error(NotImplementedError, "int24 format not yet supported")
+    end
+
+    it "supports float32" do
+      mock = double(call: true)
+      mock.should_receive(:call)
+      stream = device.open_stream(frames_per_buffer: 1)
+      stream.start
+      stream.write do
+        mock.call
+        0
+      end
+    end
+
+    it "supports int32" do
+      mock = double(call: true)
+      mock.should_receive(:call)
+      stream = device.open_stream(format: :int32, frames_per_buffer: 1)
+      stream.start
+      stream.write do
+        mock.call
+        0
+      end
+    end
+
+    it "supports int16" do
+      mock = double(call: true)
+      mock.should_receive(:call)
+      stream = device.open_stream(format: :int16, frames_per_buffer: 1)
+      stream.start
+      stream.write do
+        mock.call
+        0
+      end
+    end
+
+    it "supports int8" do
+      mock = double(call: true)
+      mock.should_receive(:call)
+      stream = device.open_stream(format: :int8, frames_per_buffer: 1)
+      stream.start
+      stream.write do
+        mock.call
+        0
+      end
+    end
+
+    it "supports uint8" do
+      mock = double(call: true)
+      mock.should_receive(:call)
+      stream = device.open_stream(format: :uint8, frames_per_buffer: 1)
+      stream.start
+      stream.write do
+        mock.call
+        0
+      end
+    end
+
+    it "yields nothing to block" do
+      stream = device.open_stream(frames_per_buffer: 1)
+      stream.start
+      stream.write do |t|
+        t.should be_nil
+        0
+      end
+    end
+
+    it "yields multiple times based on number of frames and channels" do
+      t = 0
+      stream = device.open_stream(frames_per_buffer: 5, channels: 3)
+      stream.start
+      stream.write do
+        t += 1
+      end
+      t.should == 15
+    end
+  end
+
   describe "stopped?" do
     let(:stream) { device.open_stream }
     subject { stream }

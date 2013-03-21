@@ -17,10 +17,12 @@ module PortAudio
           int dithering;
           int output_priming;
           double latency;
+          float *buffer;
         } Stream;
 
         void free_stream(Stream *stream) {
           Pa_CloseStream(stream->stream_pointer);
+          free(stream->buffer);
           free(stream);
         }
 
@@ -40,6 +42,21 @@ module PortAudio
         void * get_stream_pointer(VALUE self) {
           return get_stream(self)->stream_pointer;
         }
+
+        void write_float32(Stream *stream) {
+          int i;
+          unsigned long limit = stream->frames_per_buffer * stream->channel_count;
+
+          for (i = 0; i < limit; i++)
+            stream->buffer[i] = (float)NUM2DBL( rb_yield(Qnil) );
+          
+          Pa_WriteStream(stream->stream_pointer, stream->buffer, limit);
+        }
+
+        void write_int32(Stream *stream) { rb_yield(Qnil); }
+        void write_int16(Stream *stream) { rb_yield(Qnil); }
+        void write_int8(Stream *stream) { rb_yield(Qnil); }
+        void write_uint8(Stream *stream) { rb_yield(Qnil); }
       EOC
 
       builder.c_singleton <<-EOC
@@ -55,6 +72,7 @@ module PortAudio
           stream->clipping = clipping;
           stream->dithering = dithering;
           stream->output_priming = output_priming;
+          stream->buffer = malloc( sizeof(float) * frames_per_buffer * channel_count);
 
           initialize_before_call( Pa_GetHostApiCount );
           PaStreamParameters params = { device_id, channel_count, format_id, suggested_latency, 0 };
@@ -147,8 +165,33 @@ module PortAudio
           return check_error_code( Pa_GetStreamWriteAvailable(get_stream_pointer(self)) );
         }
       EOC
+
+      builder.c <<-EOC
+        void write() {
+          Stream *stream = get_stream(self);
+          switch (get_stream(self)->format_id) {
+            case paFloat32:
+              write_float32(stream);
+              break;
+            case paInt32:
+              write_int32(stream);
+              break;
+            case paInt16:
+              write_int16(stream);
+              break;
+            case paInt8:
+              write_int8(stream);
+              break;
+            case paUInt8:
+              write_uint8(stream);
+              break;
+            default:
+              rb_raise(rb_eNotImpError, "int24 format not yet supported");
+          }
+        }
+      EOC
     end
-    
+
     def device
       PortAudio::Device.find_by_id device_id
     end
