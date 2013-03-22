@@ -140,6 +140,98 @@ describe "Stream" do
     end
   end
 
+  describe "buffer" do
+    it "should be initialized to 0s" do
+      stream = PortAudio::Stream.new(device.id, 1, 1, 44100, 256, 1, 1, 1, 0)
+      stream.buffer.each do |f|
+        f.should be_within(1e-6).of(0)
+      end
+    end
+
+    it "should have a length determined by channels and frames_per_buffer" do
+      stream = PortAudio::Stream.new(device.id, 2, 1, 44100, 256, 1, 1, 1, 0)
+      stream.buffer.length.should == 512
+    end
+
+    describe "filling the buffer" do
+      specify "float32" do
+        stream = PortAudio::Stream.new(device.id, 1, 1, 44100, 10, 1, 1, 1, 0)
+        i = -1
+        stream.start
+        stream.write do
+          i += 1
+          i * 0.1
+        end
+        stream.stop
+        i = -1
+        stream.buffer.each do |f|
+          i += 1
+          f.should be_within(1e-6).of(0.1*i)
+        end
+      end
+
+      specify "int32" do
+        stream = PortAudio::Stream.new(device.id, 1, 2, 44100, 10, 1, 1, 1, 0)
+        i = -1
+        stream.start
+        stream.write do
+          i += 1
+        end
+        stream.stop
+        i = -1
+        stream.buffer.each do |f|
+          i += 1
+          f.should be_within(1e-6).of(i)
+        end
+      end
+
+      specify "int16" do
+        stream = PortAudio::Stream.new(device.id, 1, 8, 44100, 10, 1, 1, 1, 0)
+        i = -1
+        stream.start
+        stream.write do
+          i += 1
+        end
+        stream.stop
+        i = -1
+        stream.buffer.each do |f|
+          i += 1
+          f.should be_within(1e-6).of(i)
+        end
+      end
+
+      specify "int8" do
+        stream = PortAudio::Stream.new(device.id, 1, 16, 44100, 10, 1, 1, 1, 0)
+        i = -1
+        stream.start
+        stream.write do
+          i += 1
+        end
+        stream.stop
+        i = -1
+        stream.buffer.each do |f|
+          i += 1
+          f.should be_within(1e-6).of(i)
+        end
+      end
+
+      specify "uint8" do
+        stream = PortAudio::Stream.new(device.id, 1, 32, 44100, 10, 1, 1, 1, 0)
+        i = -1
+        stream.start
+        stream.write do
+          i += 1
+        end
+        stream.stop
+        i = -1
+        stream.buffer.each do |f|
+          i += 1
+          f.should be_within(1e-6).of(i)
+        end
+      end
+    end
+  end
+
   describe "device" do
     it "should be device x if stream was opened with device ID x" do
       stream = PortAudio::Stream.new(device.id, 1, 1, 44100, 0, 1, 1, 1, 0)

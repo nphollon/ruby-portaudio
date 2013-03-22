@@ -62,7 +62,7 @@ module PortAudio
         void write_int16(Stream *stream, unsigned long limit) {
           unsigned long i;
           for (i = 0; i < limit; i++)
-            ((int *)stream->buffer)[i] = FIX2INT( rb_yield(Qnil) );
+            ((short *)stream->buffer)[i] = FIX2INT( rb_yield(Qnil) );
         }
 
         void write_int8(Stream *stream, unsigned long limit) {
@@ -93,6 +93,26 @@ module PortAudio
           stream->output_priming = output_priming;
 
           stream->buffer = malloc( Pa_GetSampleSize(format_id) * frames_per_buffer * channel_count);
+          int i;
+          for (i = 0; i < frames_per_buffer*channel_count; i++) {
+            switch (format_id) {
+              case paFloat32:
+                ((float *)stream->buffer)[i] = 0;
+                break;
+              case paInt32:
+                ((long *)stream->buffer)[i] = 0;
+                break;
+              case paInt16:
+                ((short *)stream->buffer)[i] = 0;
+                break;
+              case paInt8:
+                ((signed char *)stream->buffer)[i] = 0;
+                break;
+              case paUInt8:
+                ((unsigned char *)stream->buffer)[i] = 0;
+                break;
+            }
+          }
 
           initialize_before_call( Pa_GetHostApiCount );
           PaStreamParameters params = { device_id, channel_count, format_id, suggested_latency, 0 };
@@ -129,6 +149,37 @@ module PortAudio
       builder.c <<-EOC
         VALUE output_priming() {
           return (get_stream(self)->output_priming) ? Qtrue : Qfalse;
+        }
+      EOC
+
+      builder.c <<-EOC
+        VALUE buffer() {
+          Stream *stream = get_stream(self);
+          unsigned long length = stream->channel_count * stream->frames_per_buffer;
+          VALUE * value_buffer = malloc(sizeof(VALUE) * length);
+          int i;
+          for (i = 0; i < length; i++) {
+            switch (stream->format_id) {
+              case (paFloat32):
+                value_buffer[i] = rb_float_new(((float *)stream->buffer)[i]);
+                break;
+              case (paInt32):
+                value_buffer[i] = rb_float_new(((long *)stream->buffer)[i]);
+                break;
+              case (paInt16):
+                value_buffer[i] = rb_float_new(((short *)stream->buffer)[i]);
+                break;
+              case (paInt8):
+                value_buffer[i] = rb_float_new(((signed char *)stream->buffer)[i]);
+                break;
+              case (paUInt8):
+                value_buffer[i] = rb_float_new(((unsigned char *)stream->buffer)[i]);
+                break;
+            }
+          }
+          VALUE rb_buffer = rb_ary_new4(length, value_buffer);
+          free(value_buffer);
+          return rb_buffer;
         }
       EOC
 
