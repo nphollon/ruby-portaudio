@@ -1,10 +1,6 @@
 require 'spec_helper'
 require_relative '../portaudio'
 
-describe "Device" do
-  
-end
-
 describe "Stream" do
   let(:device) { PortAudio::Device.default_output_device }
 

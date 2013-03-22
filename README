@@ -1,5 +1,27 @@
-This is a branch of Jeremy Voorhis's ruby-portaudio. The original README is located at README_original.
+This is a Ruby interface to the PortAudio API.
 
-WARNING: This code is undergoing a major refactoring. If a feature does not have specifications in spec/, you should not expect it to work.
+This is a work in progress. Stream input is not yet supported. Callback functions are not yet supported. For an example of how the library can be used, see tryit.rb.
 
-Let me know if you want to help improve the code. If you are looking for a fully functional realtime audio module, for now you should check out the original branch at voorhis/ruby-portaudio.
+--Requirements--
+
+* Ruby v1.9.3 or higher
+* PortAudio
+* RubyInline
+
+* RSpec is required to run the test suite.
+
+--Notes on Portability--
+
+For the code to work on your machine, you must tell RubyInline the location of libportaudio.a and the libraries for your platform-specific APIs. To do this, edit the "builder.add_link_flags" line at the top of lib/portaudio_func.rb.
+
+The RSpec tests are specific to my own computer. Do not expect them all to pass.
+
+--To Do--
+
+(a non-exhaustive list)
+* Implement callback functions
+* Implement reading from stream
+* Increase portability
+* Test on multiple platforms
+* File I/O?
+* Create a gem (someday...)
