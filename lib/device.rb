@@ -128,11 +128,12 @@ module PortAudio
       frames_per_buffer = options[:frames_per_buffer] || 0
       clipping = (options[:clipping] or options[:clipping].nil?) ? 1 : 0
       dithering = (options[:dithering] or options[:dithering].nil?) ? 1 : 0
-      output_priming = options[:output_priming]? 1 : 0
+      output_priming = options[:output_priming] ? 1 : 0
       suggested_latency = options[:suggested_latency] || 0
+      mute = options[:mute] ? 1 : 0
 
       PortAudio::Stream.new id, channels, format, sample_rate, frames_per_buffer,
-                            clipping, dithering, output_priming, suggested_latency
+                            clipping, dithering, output_priming, suggested_latency, mute
     end
 
     def supports_format?(options = {})

@@ -82,43 +82,43 @@ describe "Device" do
       subject { PortAudio::Stream }
 
       it "should call open" do
-        subject.should_receive(:new).with(device.id, 1, 1, 44100, 0, 1, 1, 0, 0).and_call_original
+        subject.should_receive(:new).with(device.id, 1, 1, 44100, 0, 1, 1, 0, 0, 0).and_call_original
         device.open_stream
       end
 
       it "has a channels option" do
-        subject.should_receive(:new).with(device.id, 2, 1, 44100, 0, 1, 1, 0, 0)
+        subject.should_receive(:new).with(device.id, 2, 1, 44100, 0, 1, 1, 0, 0, 0)
         device.open_stream(channels: 2)
       end
 
       describe "format option" do
         specify ":float32 => 1" do
-          subject.should_receive(:new).with(device.id, 1, 1, 44100, 0, 1, 1, 0, 0)
+          subject.should_receive(:new).with(device.id, 1, 1, 44100, 0, 1, 1, 0, 0, 0)
           device.open_stream(format: :float32)
         end
 
         specify ":int32 => 2" do
-          subject.should_receive(:new).with(device.id, 1, 2, 44100, 0, 1, 1, 0, 0)
+          subject.should_receive(:new).with(device.id, 1, 2, 44100, 0, 1, 1, 0, 0, 0)
           device.open_stream(format: :int32)
         end
         
         specify ":int24 => 4" do
-          subject.should_receive(:new).with(device.id, 1, 4, 44100, 0, 1, 1, 0, 0)
+          subject.should_receive(:new).with(device.id, 1, 4, 44100, 0, 1, 1, 0, 0, 0)
           device.open_stream(format: :int24)
         end
 
         specify ":int16 => 8" do
-          subject.should_receive(:new).with(device.id, 1, 8, 44100, 0, 1, 1, 0, 0)
+          subject.should_receive(:new).with(device.id, 1, 8, 44100, 0, 1, 1, 0, 0, 0)
           device.open_stream(format: :int16)
         end
 
         specify ":int8 => 16" do
-          subject.should_receive(:new).with(device.id, 1, 16, 44100, 0, 1, 1, 0, 0)
+          subject.should_receive(:new).with(device.id, 1, 16, 44100, 0, 1, 1, 0, 0, 0)
           device.open_stream(format: :int8)
         end
 
         specify ":uint8 => 32" do
-          subject.should_receive(:new).with(device.id, 1, 32, 44100, 0, 1, 1, 0, 0)
+          subject.should_receive(:new).with(device.id, 1, 32, 44100, 0, 1, 1, 0, 0, 0)
           device.open_stream(format: :uint8)
         end
 
@@ -128,33 +128,38 @@ describe "Device" do
       end
 
       it "has a sample_rate option" do
-        subject.should_receive(:new).with(device.id, 1, 1, 8000, 0, 1, 1, 0, 0)
+        subject.should_receive(:new).with(device.id, 1, 1, 8000, 0, 1, 1, 0, 0, 0)
         device.open_stream(sample_rate: 8000)
       end    
 
       it "has a frames_per_buffer option" do
-        subject.should_receive(:new).with(device.id, 1, 1, 44100, 256, 1, 1, 0, 0)
+        subject.should_receive(:new).with(device.id, 1, 1, 44100, 256, 1, 1, 0, 0, 0)
         device.open_stream(frames_per_buffer: 256)
       end
 
       it "has a clipping option" do
-        subject.should_receive(:new).with(device.id, 1, 1, 44100, 0, 0, 1, 0, 0)
+        subject.should_receive(:new).with(device.id, 1, 1, 44100, 0, 0, 1, 0, 0, 0)
         device.open_stream(clipping: false)
       end
 
       it "has a dithering option" do
-        subject.should_receive(:new).with(device.id, 1, 1, 44100, 0, 1, 0, 0, 0)
+        subject.should_receive(:new).with(device.id, 1, 1, 44100, 0, 1, 0, 0, 0, 0)
         device.open_stream(dithering: false)
       end
 
       it "has a output_priming option" do
-        subject.should_receive(:new).with(device.id, 1, 1, 44100, 0, 1, 1, 1, 0)
+        subject.should_receive(:new).with(device.id, 1, 1, 44100, 0, 1, 1, 1, 0, 0)
         device.open_stream(output_priming: true)
       end
 
       it "has a suggested_latency option" do
-        subject.should_receive(:new).with(device.id, 1, 1, 44100, 0, 1, 1, 0, 0.5)
+        subject.should_receive(:new).with(device.id, 1, 1, 44100, 0, 1, 1, 0, 0.5, 0)
         device.open_stream(suggested_latency: 0.5)
+      end
+
+      it "has a mute option" do
+        subject.should_receive(:new).with(device.id, 1, 1, 44100, 0, 1, 1, 0, 0, 1)
+        device.open_stream(mute: true)
       end
     end
 

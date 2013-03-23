@@ -18,6 +18,7 @@ module PortAudio
           int dithering;
           int output_priming;
           double latency;
+          int mute;
         } Stream;
 
         void allocate_stream_buffer(Stream *stream) {
@@ -81,7 +82,7 @@ module PortAudio
       builder.c_singleton <<-EOC
         VALUE new(const int device_id, const int channel_count, const unsigned long format_id, double sample_rate,
                   unsigned long frames_per_buffer, int clipping, int dithering, int output_priming,
-                  const double suggested_latency) {
+                  const double suggested_latency, int mute) {
           Stream *stream = malloc(sizeof(Stream));
           stream->device_id = device_id;
           stream->channel_count = channel_count;
@@ -91,6 +92,7 @@ module PortAudio
           stream->clipping = clipping;
           stream->dithering = dithering;
           stream->output_priming = output_priming;
+          stream->mute = mute;
 
           stream->buffer = malloc( Pa_GetSampleSize(format_id) * frames_per_buffer * channel_count);
           int i;
@@ -262,7 +264,8 @@ module PortAudio
               rb_raise(rb_eNotImpError, "int24 format not yet supported");
           }
 
-          Pa_WriteStream(stream->stream_pointer, stream->buffer, limit);
+          if (!stream->mute)
+            Pa_WriteStream(stream->stream_pointer, stream->buffer, limit);
         }
       EOC
     end
